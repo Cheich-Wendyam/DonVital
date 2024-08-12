@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
 
+
 class RegisteredUserController extends Controller
 {
     /**
@@ -44,6 +45,7 @@ class RegisteredUserController extends Controller
             'telephone' => ['nullable', 'string'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'blood_group' => ['nullable', 'string'],
+            'fcm_token' => ['nullable', 'string'],
         ]);
 
         // Gestion du fichier d'image si présent
@@ -64,6 +66,7 @@ class RegisteredUserController extends Controller
             'telephone' => $request->telephone,
             'image' => $imagePath, 
             'blood_group' => $request->blood_group,
+            'fcm_token' => $request->fcm_token,
         ]);
 
          // Attribution du rôle 'utilisateur_normal'
@@ -95,6 +98,7 @@ class RegisteredUserController extends Controller
         'telephone' => ['nullable', 'string'],
         'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         'blood_group' => ['nullable', 'string'],
+        'fcm_token' => ['nullable', 'string'],
     ]);
 
     if ($validator->fails()) {
@@ -123,6 +127,7 @@ class RegisteredUserController extends Controller
         'telephone' => $request->telephone,
         'image' => $imagePath,
         'blood_group' => $request->blood_group,
+        'fcm_token' => $request->fcm_token,
     ]);
 
     // Attribution du rôle 'utilisateur_normal'
@@ -191,5 +196,21 @@ class RegisteredUserController extends Controller
 
     return response()->json(['message' => 'Groupe sanguin enregistré avec succès.']);
 }
+
+
+public function updateFcmToken(Request $request): JsonResponse
+{
+    $request->validate([
+        'fcm_token' => 'required|string',
+    ]);
+
+    $user = Auth::user();
+    $user = $request->user();
+    $user->fcm_token = $request->fcm_token;
+    $user->save();
+
+    return response()->json(['message' => 'FCM token updated successfully']);
+}
+
 
 }

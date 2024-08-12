@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use App\models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 class ProfileController extends Controller
@@ -96,53 +97,41 @@ class ProfileController extends Controller
         return response()->json($user);
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(ProfileUpdateRequest $request)
     {
-        // Validation des données
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'telephone' => 'required|string|max:20',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'age' => 'nullable', 'integer', 'min:1',
-            'sexe' => 'nullable', 'string', 'in:Homme,Femme,Autre',
-            'pays' => 'nullable', 'string',
-            'ville' => 'nullable', 'string',
-
-        ]);
-
-        if ($validator->fails()) {
+        try {
+            $user = $request->user();
+            $data = $request->validated();
+    
+            if ($request->hasFile('image')) {
+                // Supprimer l'ancienne image si nécessaire
+                if ($user->image) {
+                    Storage::delete($user->image);
+                }
+    
+                // Stocker la nouvelle image
+                $data['image'] = $request->file('image')->store('images', 'public');
+            }
+    
+            $user->fill($data);
+    
+            $user->save();
+    
+            // Retourner une réponse JSON de succès
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile updated successfully',
+                'user' => $user
+            ], 200);
+        } catch (\Exception $e) {
+            // Gérer les erreurs et retourner une réponse JSON d'échec
             return response()->json([
                 'status' => 'error',
-                'message' => $validator->errors(),
-            ], 422);
+                'message' => 'Failed to update profile',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $user = $request->user();
-        $data = $request->only('name', 'email', 'telephone', 'sexe', 'pays', 'ville', 'age');
-
-        if ($request->hasFile('image')) {
-            // Supprimer l'ancienne image si nécessaire
-            if ($user->image) {
-                Storage::disk('public')->delete($user->image);
-            }
-
-            // Stocker la nouvelle image
-            $data['image'] = $request->file('image')->store('images', 'public');
-        }
-
-        $user->fill($data);
-
-        // Vérifier si l'email a changé et nécessite une vérification
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Profile updated successfully.',
-        ], 200);
     }
+
+   
 }

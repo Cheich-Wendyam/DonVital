@@ -26,12 +26,15 @@ Route::post('register', [App\Http\Controllers\Auth\RegisteredUserController::cla
 Route::post('login', [App\Http\Controllers\Auth\RegisteredUserController::class, 'apiLogin']);
 
 Route::middleware('auth:sanctum')->get('/profile', [ProfileController::class, 'getProfile']);
-Route::middleware('auth:sanctum')->put('/updateprofile', [ProfileController::class, 'updateProfile']);
+Route::middleware('auth:sanctum')->post('/updateprofile', [ProfileController::class, 'updateProfile']);
 Route::post('/groupsanguin', [RegisteredUserController::class, 'BloodGroup'])
     ->middleware('auth:sanctum');
 
 Route::get('/annonces', [AnnonceController::class, 'index']);
-Route::post('/annonces', [AnnonceController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/annonces', [AnnonceController::class, 'store']);
 Route::get('/annonces/{id}', [AnnonceController::class, 'show']);
 Route::put('/annonces/{id}', [AnnonceController::class, 'update']);
 Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy']);
+
+Route::middleware('auth:sanctum')->post('/fcm', [RegisteredUserController::class, 'updateFcmToken']);
+

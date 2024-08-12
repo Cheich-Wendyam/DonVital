@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Annonce;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Notifications\BloodRequestNotification;
 
 class AnnonceController extends Controller
 {
@@ -15,7 +18,7 @@ class AnnonceController extends Controller
      */
     public function index()
     {
-        $annonces = Annonce::all();
+        $annonces = Annonce::with('user')->get(); 
         return response()->json($annonces);
     }
 
@@ -35,33 +38,54 @@ class AnnonceController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'titre' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
-            'raison' => ['nullable', 'string'],
-            'TypeSang' => ['nullable', 'string'],
-            'CentreSante' => ['nullable', 'string'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $annonce = Annonce::create([
-            'titre' => $request->titre,
-            'description' => $request->description,
-            'raison' => $request->raison,
-            'TypeSang' => $request->TypeSang,
-            'CentreSante' => $request->CentreSante,
-        ]);
-
-        return response()->json([
-            'message' => 'Annonce publiée avec succès.',
-            'annonce' => $annonce,
-        ], 201);
-    }
+   
+     public function store(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+             'titre' => ['required', 'string', 'max:255'],
+             'description' => ['required', 'string'],
+             'raison' => ['nullable', 'string'],
+             'TypeSang' => ['nullable', 'string'],
+             'CentreSante' => ['nullable', 'string'],
+         ]);
+     
+         if ($validator->fails()) {
+             return response()->json(['errors' => $validator->errors()], 422);
+         }
+     
+         $user = Auth::user(); // Obtenir l'utilisateur actuellement connecté
+     
+         if (!$user) {
+             return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
+         }
+     
+         // Créer l'annonce
+         $annonce = Annonce::create([
+             'titre' => $request->titre,
+             'description' => $request->description,
+             'raison' => $request->raison,
+             'TypeSang' => $request->TypeSang,
+             'CentreSante' => $request->CentreSante,
+             'user_id' => $user->id, // Associer l'annonce à l'utilisateur
+         ]);
+     
+         // Inclure l'image de l'utilisateur dans la réponse
+         $annonce->userImage = $user->image;
+     
+         // Récupérer les utilisateurs dont le groupe sanguin correspond
+         $usersToNotify = User::where('blood_type', $request->TypeSang)->get();
+     
+         // Envoyer la notification à chaque utilisateur
+         foreach ($usersToNotify as $userToNotify) {
+             $userToNotify->notify(new BloodRequestNotification($annonce));
+         }
+     
+         return response()->json([
+             'message' => 'Annonce publiée avec succès.',
+             'annonce' => $annonce,
+         ], 201);
+     }
+     
 
     /**
      * Affiche les détails d'une annonce spécifique.
@@ -150,4 +174,5 @@ class AnnonceController extends Controller
 
         return response()->json(['message' => 'Annonce supprimée avec succès.']);
     }
+    
 }
