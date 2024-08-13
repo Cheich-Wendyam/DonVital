@@ -40,4 +40,5 @@ Route::post('/fcm', [RegisteredUserController::class, 'updateFcmToken'])
     ->middleware('auth:sanctum');
 
 Route::get('/notifications', [AnnonceController::class, 'getNotifications'])->middleware('auth:sanctum');
+Route::get('/historiques', [AnnonceController::class, 'HistoriqueAnnonces'])->middleware('auth:sanctum');
 

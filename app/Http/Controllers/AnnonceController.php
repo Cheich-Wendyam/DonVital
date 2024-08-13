@@ -202,4 +202,18 @@ class AnnonceController extends Controller
     return response()->json($notifications);
 }
 
+// methode pour obtenir la liste des annonces publiés par l'utilisateur connecté
+public function HistoriqueAnnonces()
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
+    }
+
+    $annonces = Annonce::where('user_id', $user->id)->get();
+
+    return response()->json($annonces);
+}
+
 }
