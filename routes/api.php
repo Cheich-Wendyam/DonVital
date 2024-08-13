@@ -36,5 +36,8 @@ Route::get('/annonces/{id}', [AnnonceController::class, 'show']);
 Route::put('/annonces/{id}', [AnnonceController::class, 'update']);
 Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy']);
 
-Route::middleware('auth:sanctum')->post('/fcm', [RegisteredUserController::class, 'updateFcmToken']);
+Route::post('/fcm', [RegisteredUserController::class, 'updateFcmToken'])
+    ->middleware('auth:sanctum');
+
+Route::get('/notifications', [AnnonceController::class, 'getNotifications'])->middleware('auth:sanctum');
 

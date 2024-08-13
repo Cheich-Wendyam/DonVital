@@ -203,14 +203,52 @@ public function updateFcmToken(Request $request): JsonResponse
     $request->validate([
         'fcm_token' => 'required|string',
     ]);
-
-    $user = Auth::user();
+    
     $user = $request->user();
     $user->fcm_token = $request->fcm_token;
     $user->save();
 
     return response()->json(['message' => 'FCM token updated successfully']);
 }
+
+public function sendNotification(Request $request)
+{
+    $firebaseToken = User::whereNotNull('fcm_token')->pluck('fcm_token')->all();
+
+    $SERVER_API_KEY = env('FCM_SERVER_API_KEY');
+
+    $data = [
+        "registration_ids" => $firebaseToken,
+        "notification" => [
+            "title" => $request->title,
+            "body" => $request->body,
+            "content_available" => true,
+            "priority" => "high",
+        ]
+    ];
+    $dataString = json_encode($data);
+
+    $headers = [
+        'Authorization: key=' . $SERVER_API_KEY,
+        'Content-Type: application/json',
+    ];
+
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
+
+    $response = curl_exec($ch);
+
+    curl_close($ch);
+
+    return response()->json(['response' => json_decode($response)], 200);
+}
+
 
 
 }

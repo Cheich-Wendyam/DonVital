@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\BloodRequestNotification;
+use App\Events\AnnonceCreee;
+use App\Models\Notification;
 
 class AnnonceController extends Controller
 {
@@ -17,10 +19,13 @@ class AnnonceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $annonces = Annonce::with('user')->get(); 
-        return response()->json($annonces);
-    }
+{
+    // Récupère les annonces avec les informations de l'utilisateur associé, triées par date de création décroissante
+    $annonces = Annonce::with('user')->orderBy('created_at', 'desc')->get();
+
+    return response()->json($annonces);
+}
+
 
     /**
      * Affiche le formulaire de création d'une annonce.
@@ -72,13 +77,20 @@ class AnnonceController extends Controller
          // Inclure l'image de l'utilisateur dans la réponse
          $annonce->userImage = $user->image;
      
-         // Récupérer les utilisateurs dont le groupe sanguin correspond
-         $usersToNotify = User::where('blood_type', $request->TypeSang)->get();
+        
      
-         // Envoyer la notification à chaque utilisateur
-         foreach ($usersToNotify as $userToNotify) {
-             $userToNotify->notify(new BloodRequestNotification($annonce));
-         }
+         // Récupérer les utilisateurs dont le groupe sanguin correspond
+        $usersToNotify = User::where('blood_group', $request->TypeSang)->get();
+
+        // Créer une notification pour chaque utilisateur correspondant
+        foreach ($usersToNotify as $userToNotify) {
+            Notification::create([
+                'user_id' => $userToNotify->id,
+                'annonce_id' => $annonce->id,
+                'titre'=> 'Annonce de demande de sang',
+                'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
+            ]);
+        }
      
          return response()->json([
              'message' => 'Annonce publiée avec succès.',
@@ -174,5 +186,20 @@ class AnnonceController extends Controller
 
         return response()->json(['message' => 'Annonce supprimée avec succès.']);
     }
-    
+
+    public function getNotifications()
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
+    }
+
+    $notifications = Notification::where('user_id', $user->id)->where('read', false)->get();
+    //recuperer les notifications par ordre decroissant 
+    $notifications->sortByDesc('created_at');
+
+    return response()->json($notifications);
+}
+
 }
