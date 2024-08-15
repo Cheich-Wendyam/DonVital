@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\CentreSanteController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -32,13 +33,19 @@ Route::post('/groupsanguin', [RegisteredUserController::class, 'BloodGroup'])
 
 Route::get('/annonces', [AnnonceController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/annonces', [AnnonceController::class, 'store']);
-Route::get('/annonces/{id}', [AnnonceController::class, 'show']);
-Route::put('/annonces/{id}', [AnnonceController::class, 'update']);
-Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy']);
+Route::get('/annonces/{id}', [AnnonceController::class, 'show'])->middleware('auth:sanctum');
+//Route::put('/annonces/{id}', [AnnonceController::class, 'update']);
+//Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy']);
 
 Route::post('/fcm', [RegisteredUserController::class, 'updateFcmToken'])
     ->middleware('auth:sanctum');
 
 Route::get('/notifications', [AnnonceController::class, 'getNotifications'])->middleware('auth:sanctum');
 Route::get('/historiques', [AnnonceController::class, 'HistoriqueAnnonces'])->middleware('auth:sanctum');
+
+
+Route::get('/notifications/{id}/annonce', [AnnonceController::class, 'getAnnonceByNotification']);
+
+Route::apiResource('centres', CentreSanteController::class);
+
 

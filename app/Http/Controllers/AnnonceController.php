@@ -113,7 +113,12 @@ class AnnonceController extends Controller
             return response()->json(['message' => 'Annonce non trouvée.'], 404);
         }
 
-        return response()->json($annonce);
+        // recuperer l'utilisateur lié à l'annonce
+        $user = $annonce->user;
+
+
+        // retourner l'annonce et l'utilisateur correspondant
+        return response()->json(['annonce' => $annonce, 'user' => $user]);
     }
 
     /**
@@ -201,6 +206,38 @@ class AnnonceController extends Controller
 
     return response()->json($notifications);
 }
+
+/**
+ * Retourne les détails de l'annonce liée à une notification, incluant les informations de l'utilisateur responsable.
+ *
+ * @param int $notificationId
+ * @return \Illuminate\Http\Response
+ */
+public function getAnnonceByNotification($id)
+{
+    // Trouver la notification
+    $notification = Notification::find($id);
+    if (!$notification) {
+        return response()->json(['message' => 'Notification non trouvée.'], 404);
+    }
+
+    // Trouver l'annonce liée à la notification
+    $annonce = Annonce::find($notification->annonce_id);
+    if (!$annonce) {
+        return response()->json(['message' => 'Annonce non trouvée.'], 404);
+    }
+
+    // Trouver l'utilisateur responsable de l'annonce
+    $user = $annonce->user; // Suppose que la relation `user` est définie dans le modèle Annonce
+
+    // Retourner les détails de l'annonce avec les informations de l'utilisateur
+    return response()->json([
+        'annonce' => $annonce,
+        'user' => $user,
+    ]);
+}
+
+
 
 // methode pour obtenir la liste des annonces publiés par l'utilisateur connecté
 public function HistoriqueAnnonces()
