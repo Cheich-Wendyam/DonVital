@@ -207,6 +207,21 @@ class AnnonceController extends Controller
     return response()->json($notifications);
 }
 
+// marquer notification comme lu
+public function markAsRead()
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
+    }
+
+    Notification::where('user_id', $user->id)->where('read', false)->update(['read' => true]);
+
+    return response()->json(['message' => 'Notifications marquées comme lues.']);
+}
+
+
 /**
  * Retourne les détails de l'annonce liée à une notification, incluant les informations de l'utilisateur responsable.
  *
