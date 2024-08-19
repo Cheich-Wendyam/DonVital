@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dons', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('annonces', function (Blueprint $table) {
+            $table->enum('etat', ['actif', 'inactif'])->default('actif');
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dons');
+        Schema::table('annonces', function (Blueprint $table) {
+            $table->dropColumn('etat');
+        });
     }
 };

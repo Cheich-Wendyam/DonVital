@@ -20,8 +20,9 @@ class AnnonceController extends Controller
      */
     public function index()
 {
-    // Récupère les annonces avec les informations de l'utilisateur associé, triées par date de création décroissante
-    $annonces = Annonce::with('user')->orderBy('created_at', 'desc')->get();
+    // Récupère les annonces avec les informations de l'utilisateur associé, triées par date de création décroissante et dont l'attribut 'etat'='actif'
+    $annonces = Annonce::with('user')->where('etat', 'actif')->orderBy('created_at', 'desc')->get();
+    
 
     return response()->json($annonces);
 }
@@ -52,6 +53,7 @@ class AnnonceController extends Controller
              'raison' => ['nullable', 'string'],
              'TypeSang' => ['nullable', 'string'],
              'CentreSante' => ['nullable', 'string'],
+             
          ]);
      
          if ($validator->fails()) {
@@ -200,7 +202,7 @@ class AnnonceController extends Controller
         return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
     }
 
-    $notifications = Notification::where('user_id', $user->id)->where('read', false)->get();
+    $notifications = Notification::where('user_id', $user->id)->get();
     //recuperer les notifications par ordre decroissant 
     $notifications->sortByDesc('created_at');
 
@@ -263,9 +265,55 @@ public function HistoriqueAnnonces()
         return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
     }
 
-    $annonces = Annonce::where('user_id', $user->id)->get();
+    $annonces = Annonce::where('user_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($annonce) {
+            return [
+                'id' => $annonce->id,
+                'titre' => $annonce->titre,
+                'description' => $annonce->description,
+                'created_at' => $annonce->created_at->format('d/m/Y H:i'),
+            ];
+        });
 
     return response()->json($annonces);
 }
+
+    /**
+     * Récupérer les dons associés à une annonce avec les informations de l'utilisateur.
+     */
+    public function getDons($id)
+    {
+        $annonce = Annonce::with('dons.user')->find($id);
+
+        if (!$annonce) {
+            return response()->json(['message' => 'Annonce non trouvée'], 404);
+        }
+        // formater la date de don pour l'affichage
+        $dons = $annonce->dons->map(function ($don) {
+            return [
+                'id' => $don->id,
+                'user' => $don->user,
+                'created_at' => $don->created_at->format('d/m/Y H:i'),
+                'etat' => $don->etat
+            ];
+        });
+
+       
+
+        return response()->json($dons);
+    }
+
+    //mettre à jour l'etat d'une annonce à inactif
+    public function desactiverAnnonce($id)
+    {
+        $annonce = Annonce::find($id);
+        if (!$annonce) {
+            return response()->json(['message' => 'Annonce non trouvée.'], 404);
+        }
+        $annonce->update(['etat' => 'inactif']);
+        return response()->json(['message' => 'Annonce desactivée avec succès.']);
+    }
 
 }

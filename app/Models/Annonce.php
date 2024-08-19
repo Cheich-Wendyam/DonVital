@@ -20,6 +20,7 @@ class Annonce extends Model
         'TypeSang',
         'CentreSante',
         'user_id',
+        'etat',
     ];
 
      // Relation avec User
@@ -33,5 +34,11 @@ class Annonce extends Model
      {
          return $this->hasMany(Notification::class);
      }
+
+     public function dons()
+{
+    return $this->hasMany(Don::class);
+}
+
     
  }
