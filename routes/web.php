@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CentreSanteController;
+use App\Http\Controllers\PubController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,8 +33,10 @@ Route::middleware('auth')->group(function () {
 
 
 
-Route::get('centres/create', [CentreSanteController::class, 'create'])->name('centre_sante.create');
+Route::get('centres/create', [CentreSanteController::class, 'create'])->name('centre_sante.create')->middleware('auth');
 Route::post('centresante', [CentreSanteController::class, 'store'])->name('centre_sante.store');
+Route::post('pub', [PubController::class, 'store'])->name('pub.store');
+Route::get('publication', [PubController::class, 'create'])->name('pub.create')->middleware('auth');
 
 
 require __DIR__.'/auth.php';

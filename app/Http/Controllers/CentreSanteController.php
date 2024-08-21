@@ -37,6 +37,8 @@ class CentreSanteController extends Controller
             'localisation' => 'required|string|max:255',
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
     
         if ($request->hasFile('image')) {
@@ -90,5 +92,12 @@ class CentreSanteController extends Controller
 
         $centre->delete();
         return response()->json(['message' => 'Centre supprimé avec succès']);
+    }
+
+    //recuperer les centre de santé 
+    public function getCentreSante()
+    {
+        $centres = CentreSante::all();
+        return response()->json($centres);
     }
 }

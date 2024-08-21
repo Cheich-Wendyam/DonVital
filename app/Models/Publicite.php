@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CentreSante extends Model
+class Publicite extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom', 'localisation', 'image', 'description', 'latitude', 'longitude'];
+    protected $fillable = ['libelle', 'image',  'contenu'];
 }

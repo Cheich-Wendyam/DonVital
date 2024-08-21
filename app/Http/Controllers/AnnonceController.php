@@ -202,7 +202,7 @@ class AnnonceController extends Controller
         return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
     }
 
-    $notifications = Notification::where('user_id', $user->id)->get();
+    $notifications = Notification::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
     //recuperer les notifications par ordre decroissant 
     $notifications->sortByDesc('created_at');
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CentreSanteController;
 use App\Http\Controllers\DonController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PubController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,11 +49,12 @@ Route::get('/historiques', [AnnonceController::class, 'HistoriqueAnnonces'])->mi
 
 Route::get('/notifications/{id}/annonce', [AnnonceController::class, 'getAnnonceByNotification']);
 
-Route::apiResource('centres', CentreSanteController::class);
-Route::apiResource('dons',DonController::class); 
+Route::apiResource('centres', CentreSanteController::class)->middleware('auth:sanctum');
+Route::apiResource('dons',DonController::class)->middleware('auth:sanctum'); 
 
 
 Route::get('/annonce/{id}/dons', [AnnonceController::class, 'getDons'])->middleware('auth:sanctum');
 Route::post('annonceEtat/{id}', [AnnonceController::class, 'desactiverAnnonce'])->middleware('auth:sanctum');
 Route::get('myDon', [DonController::class, 'myDon'])->middleware('auth:sanctum');
 Route::post('confirmDon/{id}', [DonController::class, 'confirmDon'])->middleware('auth:sanctum');
+Route::apiResource('pub',PubController::class)->middleware('auth:sanctum');
