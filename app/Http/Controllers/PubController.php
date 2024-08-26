@@ -42,7 +42,7 @@ class PubController extends Controller
        }
 
        Publicite::create($validated);
-       return redirect()->route('pub.create')->with('success', 'Publicité ajoutée avec succès');
+       return redirect()->route('pub.index')->with('success', 'Publicité ajoutée avec succès');
     }
 
     /**
@@ -66,17 +66,51 @@ class PubController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request, $id)
+{
+    // Récupérer la publicité par son ID
+    $pub = Publicite::findOrFail($id);
+
+    // Valider les données
+    $validated = $request->validate([
+        'libelle' => 'required|string|max:255',
+        'image' => 'nullable|image|max:2048',
+        'contenu' => 'required|string',
+    ]);
+
+    // Vérifier si une nouvelle image a été téléchargée
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('images', 'public');
+        $validated['image'] = $path;
     }
+
+    // Mettre à jour la publicité
+    $pub->update($validated);
+
+    // Rediriger avec un message de succès
+    return redirect()->route('pub.index')->with('success', 'Publicité mise à jour avec succès');
+}
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        //
+    public function destroy($id)
+{
+    // Récupérer la publicité par son ID
+    $pub = Publicite::findOrFail($id);
+
+    // Supprimer la publicité
+    $pub->delete();
+
+    // Rediriger avec un message de succès
+    return redirect()->route('pub.index')->with('success', 'Publicité supprimée avec succès');
+}
+
+    public function getPub(Request $request){
+
+        $pubs = Publicite::all();
+        return view('pub.index', compact('pubs'));
     }
 
 

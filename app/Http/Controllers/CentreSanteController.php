@@ -30,7 +30,7 @@ class CentreSanteController extends Controller
      * @return \Illuminate\Http\Response
      * @throws \Illuminate\Validation\ValidationException
     */
-    public function store(Request $request)
+    public function CreateCentre(Request $request)
     {
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
@@ -48,8 +48,9 @@ class CentreSanteController extends Controller
     
         CentreSante::create($validated);
     
-        return redirect()->route('centre_sante.create')->with('success', 'Centre de santé ajouté avec succès');
+        return redirect()->back()->with('success', 'Centre de santé ajouté avec succès');
     }
+    
 
     public function show($id)
     {
@@ -63,9 +64,11 @@ class CentreSanteController extends Controller
 
         $validated = $request->validate([
             'nom' => 'string|max:255',
-            'localisation' => 'string|max:255',
             'image' => 'nullable|image|max:2048',
             'description' => 'nullable|string',
+            'localisation' => 'string|max:255',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
         ]);
 
         if ($request->hasFile('image')) {
@@ -79,7 +82,7 @@ class CentreSanteController extends Controller
         }
 
         $centre->update($validated);
-        return response()->json($centre);
+        return redirect()->route('centre_sante.index')->with('success', 'Centre de santé mis à jour avec succès');
     }
 
     public function destroy($id)
@@ -91,13 +94,13 @@ class CentreSanteController extends Controller
         }
 
         $centre->delete();
-        return response()->json(['message' => 'Centre supprimé avec succès']);
+        return redirect()->back()->with('success', 'Centre de santé supprimé avec succès');
     }
 
     //recuperer les centre de santé 
     public function getCentreSante()
     {
         $centres = CentreSante::all();
-        return response()->json($centres);
+        return view('centre_sante.index', compact('centres'));
     }
 }

@@ -141,8 +141,13 @@ class AnnonceController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
+    // Update an existing announcement
     public function update(Request $request, $id)
     {
+        // Find the announcement or throw a 404 if not found
+        $annonce = Annonce::findOrFail($id);
+
+        // Validate the request
         $validator = Validator::make($request->all(), [
             'titre' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
@@ -151,29 +156,30 @@ class AnnonceController extends Controller
             'CentreSante' => ['nullable', 'string'],
         ]);
 
+        // Check for validation errors
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
 
-        $annonce = Annonce::find($id);
+        // Update the announcement
+        $annonce->update($request->only(['titre', 'description', 'raison', 'TypeSang', 'CentreSante']));
 
-        if (!$annonce) {
-            return response()->json(['message' => 'Annonce non trouvée.'], 404);
-        }
-
-        $annonce->update([
-            'titre' => $request->titre,
-            'description' => $request->description,
-            'raison' => $request->raison,
-            'TypeSang' => $request->TypeSang,
-            'CentreSante' => $request->CentreSante,
-        ]);
-
-        return response()->json([
-            'message' => 'Annonce mise à jour avec succès.',
-            'annonce' => $annonce,
-        ]);
+        return redirect()->route('annonce.index')->with('success', 'Annonce mise à jour avec succès.');
     }
+
+    //obtenir les annonces
+    public function getAnnonces(){
+
+        $annonces = Annonce::all();
+        return view('annonce.index', compact('annonces'));
+    }
+
+    
+    
+
+
 
     /**
      * Supprime une annonce spécifique.
@@ -184,14 +190,9 @@ class AnnonceController extends Controller
     public function destroy($id)
     {
         $annonce = Annonce::find($id);
-
-        if (!$annonce) {
-            return response()->json(['message' => 'Annonce non trouvée.'], 404);
-        }
-
         $annonce->delete();
 
-        return response()->json(['message' => 'Annonce supprimée avec succès.']);
+        return redirect()->route('annonce.index')->with('success', 'Annonce supprimée avec succès.');
     }
 
     public function getNotifications()
@@ -273,6 +274,7 @@ public function HistoriqueAnnonces()
                 'id' => $annonce->id,
                 'titre' => $annonce->titre,
                 'description' => $annonce->description,
+                'etat'=>$annonce->etat,
                 'created_at' => $annonce->created_at->format('d/m/Y H:i'),
             ];
         });
@@ -314,6 +316,14 @@ public function HistoriqueAnnonces()
         }
         $annonce->update(['etat' => 'inactif']);
         return response()->json(['message' => 'Annonce desactivée avec succès.']);
+    }
+
+    //activer une annonce
+    public function activerAnnonce($id)
+    {
+        $annonce = Annonce::find($id);
+        $annonce->update(['etat' => 'actif']);
+        return redirect()->route('annonce.index')->with('success', 'Annonce approuvée avec succès.');
     }
 
 }

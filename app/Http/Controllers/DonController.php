@@ -125,4 +125,12 @@ class DonController extends Controller
         $don->update();
         return response()->json($don);
     }
+
+    //annulé la confirmation de don
+    public function annulerDon($id){
+        $don= Don::findOrFail($id);
+        $don->etat= 'annulé';
+        $don->update();
+        return response()->json($don);
+    }
 }

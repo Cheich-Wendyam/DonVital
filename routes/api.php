@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\CentreSanteController;
 use App\Http\Controllers\DonController;
@@ -57,4 +59,9 @@ Route::get('/annonce/{id}/dons', [AnnonceController::class, 'getDons'])->middlew
 Route::post('annonceEtat/{id}', [AnnonceController::class, 'desactiverAnnonce'])->middleware('auth:sanctum');
 Route::get('myDon', [DonController::class, 'myDon'])->middleware('auth:sanctum');
 Route::post('confirmDon/{id}', [DonController::class, 'confirmDon'])->middleware('auth:sanctum');
+Route::post('annulerDon/{id}', [DonController::class, 'annulerDon'])->middleware('auth:sanctum');
 Route::apiResource('pub',PubController::class)->middleware('auth:sanctum');
+
+Route::post('/passwordlink', [PasswordResetLinkController::class, 'sendResetLinkEmail']);
+Route::post('/passwordreset', [PasswordResetLinkController::class, 'updatePassword']);
+Route::post('/verify', [PasswordResetLinkController::class, 'verifyCode'] );
