@@ -32,6 +32,17 @@
                 </div>
             @endif
 
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Liste des annonces -->
             <div class="row">
                 <div class="col-12">
@@ -63,8 +74,10 @@
                                             <td>
                                                 @if($annonce->etat == 'actif')
                                                     <span class="badge badge-success">Actif</span>
-                                                @else
+                                                @elseif($annonce->etat == 'inactif')
                                                     <span class="badge badge-warning">Inactif</span>
+                                                @elseif($annonce->etat == 'fermé')
+                                                    <span class="badge badge-danger">Fermé</span>
                                                 @endif
                                             </td>
                                             <td>

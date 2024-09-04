@@ -29,7 +29,7 @@
                                 
                                 <div class="text-center w-75 m-auto">
                                     <a href="{{ url('/') }}">
-                                        <span><img src="{{ asset('images/logo-dark.png') }}" alt="" height="26"></span>
+                                        <span><img src="{{ asset('images/Icon.ico') }}" alt="" height="80"></span>
                                     </a>
                                     <p class="text-muted mb-4 mt-3">Enter your email address and password to access the admin panel.</p>
                                 </div>

@@ -12,7 +12,7 @@
 
                 <!-- Tableau de bord -->
                 <li>
-                    <a href="javascript: void(0);">
+                    <a href="{{ route('admin') }}">
                         <i class="la la-dashboard"></i>
                         <span> Tableau de bord </span>
                     </a>

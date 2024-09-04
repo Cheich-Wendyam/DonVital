@@ -53,6 +53,9 @@ class AnnonceController extends Controller
              'raison' => ['nullable', 'string'],
              'TypeSang' => ['nullable', 'string'],
              'CentreSante' => ['nullable', 'string'],
+             'etat' => ['nullable', 'string'], 
+
+             
              
          ]);
      
@@ -65,6 +68,8 @@ class AnnonceController extends Controller
          if (!$user) {
              return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
          }
+
+         $etat='inactif';
      
          // Créer l'annonce
          $annonce = Annonce::create([
@@ -73,7 +78,9 @@ class AnnonceController extends Controller
              'raison' => $request->raison,
              'TypeSang' => $request->TypeSang,
              'CentreSante' => $request->CentreSante,
+             'etat' => $etat,
              'user_id' => $user->id, // Associer l'annonce à l'utilisateur
+
          ]);
      
          // Inclure l'image de l'utilisateur dans la réponse
@@ -307,14 +314,14 @@ public function HistoriqueAnnonces()
         return response()->json($dons);
     }
 
-    //mettre à jour l'etat d'une annonce à inactif
+    //mettre à jour l'etat d'une annonce à fermée
     public function desactiverAnnonce($id)
     {
         $annonce = Annonce::find($id);
         if (!$annonce) {
             return response()->json(['message' => 'Annonce non trouvée.'], 404);
         }
-        $annonce->update(['etat' => 'inactif']);
+        $annonce->update(['etat' => 'fermé']);
         return response()->json(['message' => 'Annonce desactivée avec succès.']);
     }
 

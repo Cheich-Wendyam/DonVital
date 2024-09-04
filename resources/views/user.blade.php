@@ -24,6 +24,17 @@
             </div>
             @endif
 
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="row mb-3">
                 <div class="col-12">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">Ajouter un utilisateur</button>
@@ -37,7 +48,6 @@
                             <h4 class="header-title">Liste des Utilisateurs</h4>
                             <p class="text-muted font-13 mb-4">
                                 Vous pouvez gérer les utilisateurs ici en ajoutant, modifiant ou supprimant des comptes, ainsi qu'en changeant les rôles.
-                                <code>$().DataTable();</code>.
                             </p>
 
                             <table id="basic-datatable" class="table dt-responsive nowrap">
@@ -263,12 +273,7 @@
 
 <!-- Vendor js -->
 <script src="{{ asset('js/vendor.min.js') }}"></script>
-<!-- Magnific Popup-->
-<script src="{{asset('libs/magnific-popup/jquery.magnific-popup.min.js')}}"></script>
-<!-- Tour init js-->
-<script src="{{asset('js/pages/lightbox.init.js')}}"></script>
-<!-- App js -->
-<script src="{{asset('js/app.min.js')}}"></script>
+
 <!-- third party js -->
 <script src="{{ asset('libs/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('libs/datatables/dataTables.bootstrap4.js') }}"></script>

@@ -30,6 +30,17 @@
                 </div>
             @endif
 
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="row mb-3">
                 <div class="col-12">
                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPubModal">

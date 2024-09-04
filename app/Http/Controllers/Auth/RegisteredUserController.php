@@ -75,6 +75,8 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+        $user->last_login_at = now();
+        $user->save();
 
         return redirect(RouteServiceProvider::HOME);
     }
@@ -139,6 +141,8 @@ class RegisteredUserController extends Controller
 
     // Connexion automatique
     Auth::login($user);
+    $user->last_login_at = now();
+    $user->save();
 
     // Générer un token API
     $token = $user->createToken('auth_token')->plainTextToken;
@@ -173,6 +177,16 @@ class RegisteredUserController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
+
+        
+
+        // Déconnexion de l'utilisateur actuel
+        Auth::logout();
+        // Connexion automatique
+        Auth::login($user);
+
+        $user->last_login_at = now();
+        $user->save();
 
         // Générer un token API
         $token = $user->createToken('auth_token')->plainTextToken;

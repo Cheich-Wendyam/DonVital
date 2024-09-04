@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\PubController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,13 +24,15 @@ use App\Http\Controllers\RoleController;
 */
 
 
-Route::get('/admin', function () {
-    return view('admin');
-})->middleware(['auth', 'verified', 'role:admin'])->name('admin');
+Route::get('/admin', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:admin'])->name('admin');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/', function () {
+    return view('welcome');
+})->name('welcome');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -36,11 +40,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/profiles', function () {
+    return view('profile');
+})->name('profile');
+
 Route::get('/utilisateurs', [Controller::class, 'index'])->name('utilisateurs');
 Route::post('/user', [Controller::class, 'createUser'])->name('users.store');
 Route::put('/users/{id}', [Controller::class, 'updateUser'])->name('users.update');
 
 Route::delete('/users/{id}', [Controller::class, 'deleteUser'])->name('users.destroy');
+
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 
 
@@ -60,6 +70,7 @@ Route::post('/centre', [CentreSanteController::class, 'CreateCentre'])->name('ce
 Route::get('/centre', [CentreSanteController::class, 'getCentreSante'])->name('centre_sante.index');
 Route::put('/centre/{id}', [CentreSanteController::class, 'update'])->name('centre_sante.update');
 Route::delete('/centre/{id}', [CentreSanteController::class, 'destroy'])->name('centre_sante.destroy');
+
 
 
 

@@ -27,6 +27,17 @@
                 </div>
             @endif
 
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Add Permission Button -->
             <div class="row mb-3">
                 <div class="col-12">
