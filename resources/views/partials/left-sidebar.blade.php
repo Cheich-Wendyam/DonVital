@@ -50,6 +50,32 @@
                     </a>
                 </li>
 
+                 <!-- Annonces with Submenu -->
+                 <li>
+                    <a href="javascript: void(0);" aria-expanded="false">
+                        <i class="la la-bullhorn"></i>
+                        <span> Annonces </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('annonce.index') }}">
+                                <i class="la la-list"></i>
+                                <span>Toutes les annonces</span></a>
+                        </li>
+                        <li>
+                            <a href="{{ route('annonce.attente') }}">
+                                <i class="la la-"></i>
+                                <span>Annonces en attente</span></a>
+                        </li>
+                        <li>
+                            <a href="{{ route('annonce.fermees') }}">
+                                <i class="la la-lock"></i>
+                                <span>Annonces fermées</span></a>
+                        </li>
+                    </ul>
+                </li>
+
                 <!-- Centre de santé -->
                 <li>
                     <a href="{{ route('centre_sante.index') }}">

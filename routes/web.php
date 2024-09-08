@@ -44,6 +44,20 @@ Route::get('/profiles', function () {
     return view('profile');
 })->name('profile');
 
+
+
+Route::get('/annonces/fermees', [AnnonceController::class, 'fermees'])->name('annonce.fermees');
+
+
+Route::get('/annonces/{id}/dons', [AnnonceController::class, 'dons'])->name('annonce.dons');
+
+
+
+
+
+Route::get('/annonces/attente', [AnnonceController::class, 'attente'])->name('annonce.attente');
+Route::post('/annonces/{id}', [AnnonceController::class, 'reject'])->name('annonces.reject');
+
 Route::get('/utilisateurs', [Controller::class, 'index'])->name('utilisateurs');
 Route::post('/user', [Controller::class, 'createUser'])->name('users.store');
 Route::put('/users/{id}', [Controller::class, 'updateUser'])->name('users.update');
@@ -79,9 +93,11 @@ Route::get('centres/create', [CentreSanteController::class, 'create'])->name('ce
 Route::get('publication', [PubController::class, 'create'])->name('pub.create')->middleware('auth');
 Route::get('/annonces', [AnnonceController::class, 'getAnnonces'])->name('annonce.index');
 Route::put('/annonces/{id}', [AnnonceController::class, 'update'])->name('annonces.update');
+
 Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
 Route::patch('/annonces/{id}', [AnnonceController::class, 'activerAnnonce'])->name('annonces.approve');
 Route::post('/annonces', [AnnonceController::class, 'store'])->name('annonces.store');
+Route::get('/annonce/{id}', [AnnonceController::class, 'showAnnonce'])->name('annonces.show');
 
 
 require __DIR__.'/auth.php';

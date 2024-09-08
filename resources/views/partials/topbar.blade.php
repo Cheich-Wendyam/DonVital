@@ -50,7 +50,7 @@
                     <span class="user-status"></span>
                 </div>
                 <span class="pro-user-name ml-1">
-                    {{ auth()->user()->name }} <i class="mdi mdi-chevron-down"></i> 
+                    {{ auth()->user()->name }} <i class="mdi mdi-chevron-down"></i>
                 </span>
             </a>
             <div class="dropdown-menu dropdown-menu-right profile-dropdown">
@@ -73,11 +73,7 @@
                     <span>Paramètres</span>
                 </a>
 
-                <!-- item-->
-                <a href="javascript:void(0);" class="dropdown-item notify-item">
-                    <i class="fe-lock"></i>
-                    <span>Écran de verrouillage</span>
-                </a>
+
 
                 <div class="dropdown-divider"></div>
 

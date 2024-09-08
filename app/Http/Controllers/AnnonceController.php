@@ -22,7 +22,7 @@ class AnnonceController extends Controller
 {
     // Récupère les annonces avec les informations de l'utilisateur associé, triées par date de création décroissante et dont l'attribut 'etat'='actif'
     $annonces = Annonce::with('user')->where('etat', 'actif')->orderBy('created_at', 'desc')->get();
-    
+
 
     return response()->json($annonces);
 }
@@ -44,7 +44,7 @@ class AnnonceController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-   
+
      public function store(Request $request)
      {
          $validator = Validator::make($request->all(), [
@@ -53,24 +53,24 @@ class AnnonceController extends Controller
              'raison' => ['nullable', 'string'],
              'TypeSang' => ['nullable', 'string'],
              'CentreSante' => ['nullable', 'string'],
-             'etat' => ['nullable', 'string'], 
+             'etat' => ['nullable', 'string'],
 
-             
-             
+
+
          ]);
-     
+
          if ($validator->fails()) {
              return response()->json(['errors' => $validator->errors()], 422);
          }
-     
+
          $user = Auth::user(); // Obtenir l'utilisateur actuellement connecté
-     
+
          if (!$user) {
              return response()->json(['message' => 'Utilisateur non authentifié.'], 401);
          }
 
          $etat='inactif';
-     
+
          // Créer l'annonce
          $annonce = Annonce::create([
              'titre' => $request->titre,
@@ -82,12 +82,12 @@ class AnnonceController extends Controller
              'user_id' => $user->id, // Associer l'annonce à l'utilisateur
 
          ]);
-     
+
          // Inclure l'image de l'utilisateur dans la réponse
          $annonce->userImage = $user->image;
-     
-        
-     
+
+
+
          // Récupérer les utilisateurs dont le groupe sanguin correspond
         $usersToNotify = User::where('blood_group', $request->TypeSang)->get();
 
@@ -100,13 +100,13 @@ class AnnonceController extends Controller
                 'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
             ]);
         }
-     
+
          return response()->json([
              'message' => 'Annonce publiée avec succès.',
              'annonce' => $annonce,
          ], 201);
      }
-     
+
 
     /**
      * Affiche les détails d'une annonce spécifique.
@@ -183,8 +183,8 @@ class AnnonceController extends Controller
         return view('annonce.index', compact('annonces'));
     }
 
-    
-    
+
+
 
 
 
@@ -211,7 +211,7 @@ class AnnonceController extends Controller
     }
 
     $notifications = Notification::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
-    //recuperer les notifications par ordre decroissant 
+    //recuperer les notifications par ordre decroissant
     $notifications->sortByDesc('created_at');
 
     return response()->json($notifications);
@@ -309,7 +309,7 @@ public function HistoriqueAnnonces()
             ];
         });
 
-       
+
 
         return response()->json($dons);
     }
@@ -332,5 +332,48 @@ public function HistoriqueAnnonces()
         $annonce->update(['etat' => 'actif']);
         return redirect()->route('annonce.index')->with('success', 'Annonce approuvée avec succès.');
     }
+
+    public function showAnnonce($id) {
+        $annonce = Annonce::find($id);
+        return view('annonce.show', compact('annonce'));
+
+    }
+
+    public function attente()
+{
+    // Récupérer les annonces avec l'état 'inactif'
+    $annonces = Annonce::where('etat', 'inactif')->get();
+
+    // Retourner la vue 'attente' avec les annonces
+    return view('annonce.attente', compact('annonces'));
+}
+
+public function fermees()
+{
+    // Récupérer les annonces avec l'état 'fermer'
+    $annonces = Annonce::where('etat', 'fermé')->get();
+
+    // Retourner la vue 'fermees' avec les annonces
+    return view('annonce.fermees', compact('annonces'));
+}
+
+public function dons($id)
+{
+    // Récupérer l'annonce par son ID
+    $annonce = Annonce::findOrFail($id);
+
+    // Récupérer les dons associés à cette annonce
+    $dons = $annonce->dons()->with('user')->where('etat', 'confirmé')->get();
+
+    // Retourner la vue 'dons-associes' avec les dons et l'annonce
+    return view('annonce.dons', compact('dons', 'annonce'));
+}
+
+public function reject($id)
+{
+    $annonce = Annonce::find($id);
+    $annonce->update(['etat' => 'fermé']);
+    return redirect()->route('annonce.index')->with('success', 'Annonce rejetée avec succès.');
+}
 
 }

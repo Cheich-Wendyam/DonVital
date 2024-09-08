@@ -1,3 +1,5 @@
+<!-- resources/views/annonces/attente.blade.php -->
+
 @extends('layouts.layout')
 @section('content')
 <div class="content-page">
@@ -10,47 +12,22 @@
                             <ol class="breadcrumb m-0">
                                 <li class="breadcrumb-item"><a href="javascript: void(0);">DonVital</a></li>
                                 <li class="breadcrumb-item"><a href="javascript: void(0);">Annonce</a></li>
-                                <li class="breadcrumb-item active">Liste des annonces</li>
+                                <li class="breadcrumb-item active">Annonces en attente</li>
                             </ol>
                         </div>
-                        <h4 class="page-title">Gestion des annonces</h4>
+                        <h4 class="page-title">Gestion des annonces en attente</h4>
                     </div>
                 </div>
             </div>
 
-            <!-- Button d'ajout -->
-            <div class="row mb-3">
-                <div class="col-12">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAnnonceModal">Ajouter une annonce</button>
-                </div>
-            </div>
-
-            <!-- message de success -->
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            <!-- Error Messages -->
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <!-- Liste des annonces -->
+            <!-- Liste des annonces inactives -->
             <div class="row">
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="header-title">Liste des annonces</h4>
+                            <h4 class="header-title">Liste des annonces en attente</h4>
                             <p class="text-muted font-13 mb-4">
-                                Vous pouvez gérer les annonces ici en ajoutant, modifiant ou supprimant des annonces.
+                                Vous pouvez approuver, voir les détails, supprimer ou rejeter les annonces en attente.
                             </p>
 
                             <table id="basic-datatable" class="table dt-responsive nowrap">
@@ -60,7 +37,6 @@
                                         <th>Description</th>
                                         <th>Groupe Sanguin</th>
                                         <th>Raison</th>
-                                        <th>État</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -69,27 +45,28 @@
                                         <tr>
                                             <td>{{ $annonce->titre }}</td>
                                             <td>{{ $annonce->description }}</td>
-                                            <td>{{ $annonce->TypeSang }}</td>
+                                            <td>{{ $annonce->groupesanguin }}</td>
                                             <td>{{ $annonce->raison }}</td>
                                             <td>
-                                                @if($annonce->etat == 'actif')
-                                                    <span class="badge badge-success">Actif</span>
-                                                @elseif($annonce->etat == 'inactif')
-                                                    <span class="badge badge-warning">Inactif</span>
-                                                @elseif($annonce->etat == 'fermé')
-                                                    <span class="badge badge-danger">Fermé</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <a href="{{ route('annonces.show', $annonce->id) }}" class="btn btn-primary btn-sm">
-                                                    <i class="la la-eye"></i> Voir Détail
+                                                <!-- Bouton Voir Détail -->
+                                                <a href="{{ route('annonces.show', $annonce->id) }}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-eye"></i> Voir détail
                                                 </a>
+
+                                                <!-- Bouton Approuver -->
                                                 <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#approveAnnonceModal-{{ $annonce->id }}">
-                                                    <i class="la la-check"></i>Approuver</button>
-                                                <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#editAnnonceModal-{{ $annonce->id }}">
-                                                    <i class="la la-edit"></i>Modifier</button>
+                                                    <i class="fas fa-check"></i> Approuver
+                                                </button>
+
+                                                <!-- Bouton Rejeter -->
+                                                <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#rejectAnnonceModal-{{ $annonce->id }}">
+                                                    <i class="fas fa-times"></i> Rejeter
+                                                </button>
+
+                                                <!-- Bouton Supprimer -->
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteAnnonceModal-{{ $annonce->id }}">
-                                                    <i class="la la-trash"></i>Supprimer</button>
+                                                    <i class="fas fa-trash"></i> Supprimer
+                                                </button>
                                             </td>
                                         </tr>
 
@@ -118,42 +95,27 @@
                                             </div>
                                         </div>
 
-                                        <!-- Modal pour Modifier une annonce -->
-                                        <div class="modal fade" id="editAnnonceModal-{{ $annonce->id }}" tabindex="-1" role="dialog" aria-labelledby="editAnnonceModalLabel" aria-hidden="true">
+                                        <!-- Modal pour Rejeter une annonce -->
+                                        <div class="modal fade" id="rejectAnnonceModal-{{ $annonce->id }}" tabindex="-1" role="dialog" aria-labelledby="rejectAnnonceModalLabel" aria-hidden="true">
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="editAnnonceModalLabel">Modifier une annonce</h5>
+                                                        <h5 class="modal-title" id="rejectAnnonceModalLabel">Rejeter l'annonce</h5>
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
-                                                    <form action="{{ route('annonces.update', $annonce->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PUT')
-                                                        <div class="modal-body">
-                                                            <div class="form-group">
-                                                                <label for="titre">Titre</label>
-                                                                <input type="text" class="form-control" id="titre" name="titre" value="{{ $annonce->titre }}" required>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label for="description">Description</label>
-                                                                <textarea class="form-control" id="description" name="description" required>{{ $annonce->description }}</textarea>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label for="groupesanguin">Groupe Sanguin</label>
-                                                                <input type="text" class="form-control" id="groupesanguin" name="groupesanguin" value="{{ $annonce->groupesanguin }}" required>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label for="raison">Raison</label>
-                                                                <input type="text" class="form-control" id="raison" name="raison" value="{{ $annonce->raison }}" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                                        </div>
-                                                    </form>
+                                                    <div class="modal-body">
+                                                        Êtes-vous sûr de vouloir rejeter cette annonce ?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                                                        <form action="{{ route('annonces.reject', $annonce->id) }}" method="POST" style="display:inline;">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="submit" class="btn btn-warning">Rejeter</button>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -163,7 +125,7 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="deleteAnnonceModalLabel">Supprimer une annonce</h5>
+                                                        <h5 class="modal-title" id="deleteAnnonceModalLabel">Supprimer l'annonce</h5>
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
@@ -192,46 +154,6 @@
         </div> <!-- container -->
     </div> <!-- content -->
 </div> <!-- content-page -->
-
-<!-- Modal pour Ajouter une nouvelle annonce -->
-<div class="modal fade" id="addAnnonceModal" tabindex="-1" role="dialog" aria-labelledby="addAnnonceModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addAnnonceModalLabel">Ajouter une nouvelle annonce</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="{{ route('annonces.store') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="titre">Titre</label>
-                        <input type="text" class="form-control" id="titre" name="titre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea class="form-control" id="description" name="description" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="groupesanguin">Groupe Sanguin</label>
-                        <input type="text" class="form-control" id="groupesanguin" name="groupesanguin" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="raison">Raison</label>
-                        <input type="text" class="form-control" id="raison" name="raison" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-                    <button type="submit" class="btn btn-primary">Ajouter</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <!-- Vendor JS -->
 <script src="{{ asset('js/vendor.min.js') }}"></script>
 
@@ -253,4 +175,9 @@
 <!-- Datatables init -->
 <script src="{{ asset('js/pages/datatables.init.js') }}"></script>
 
+<script>
+    $(document).ready(function() {
+        $('#permissions-datatable').DataTable();
+    });
+</script>
 @endsection
