@@ -95,30 +95,30 @@
                                             </div>
                                         </div>
 
-                                        <!-- Modal pour Rejeter une annonce -->
-                                        <div class="modal fade" id="rejectAnnonceModal-{{ $annonce->id }}" tabindex="-1" role="dialog" aria-labelledby="rejectAnnonceModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="rejectAnnonceModalLabel">Rejeter l'annonce</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Êtes-vous sûr de vouloir rejeter cette annonce ?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                                                        <form action="{{ route('annonces.reject', $annonce->id) }}" method="POST" style="display:inline;">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="submit" class="btn btn-warning">Rejeter</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                       <!-- Modal pour Rejeter une annonce -->
+<div class="modal fade" id="rejectAnnonceModal-{{ $annonce->id }}" tabindex="-1" role="dialog" aria-labelledby="rejectAnnonceModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectAnnonceModalLabel">Rejeter l'annonce</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir rejeter cette annonce ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <form action="{{ route('annonces.reject', $annonce->id) }}" method="POST" style="display:inline;">
+                    @csrf
+                    @method('PATCH')
+                    <button type="submit" class="btn btn-warning">Rejeter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
                                         <!-- Modal pour Supprimer une annonce -->
                                         <div class="modal fade" id="deleteAnnonceModal-{{ $annonce->id }}" tabindex="-1" role="dialog" aria-labelledby="deleteAnnonceModalLabel" aria-hidden="true">

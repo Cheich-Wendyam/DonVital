@@ -86,21 +86,6 @@ class AnnonceController extends Controller
          // Inclure l'image de l'utilisateur dans la réponse
          $annonce->userImage = $user->image;
 
-
-
-         // Récupérer les utilisateurs dont le groupe sanguin correspond
-        $usersToNotify = User::where('blood_group', $request->TypeSang)->get();
-
-        // Créer une notification pour chaque utilisateur correspondant
-        foreach ($usersToNotify as $userToNotify) {
-            Notification::create([
-                'user_id' => $userToNotify->id,
-                'annonce_id' => $annonce->id,
-                'titre'=> 'Annonce de demande de sang',
-                'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
-            ]);
-        }
-
          return response()->json([
              'message' => 'Annonce publiée avec succès.',
              'annonce' => $annonce,
@@ -196,6 +181,10 @@ class AnnonceController extends Controller
      */
     public function destroy($id)
     {
+        // Vérifier si l'utilisateur a la permission de suppression
+        if (!auth()->user()->can('suppression')) {
+            abort(403, 'Accès refusé, vous n’avez pas la permission de supprimer des annonces.');
+        }
         $annonce = Annonce::find($id);
         $annonce->delete();
 
@@ -326,12 +315,43 @@ public function HistoriqueAnnonces()
     }
 
     //activer une annonce
-    public function activerAnnonce($id)
-    {
-        $annonce = Annonce::find($id);
-        $annonce->update(['etat' => 'actif']);
-        return redirect()->route('annonce.index')->with('success', 'Annonce approuvée avec succès.');
-    }
+     //activer une annonce
+     public function activerAnnonce($id)
+     {
+        // verifier les permissions
+        if (!Auth::user()->hasPermissionTo('Approuver annonce')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+         // Récupérer l'annonce par son identifiant
+         $annonce = Annonce::find($id);
+
+         // Vérifier si l'annonce est déjà active
+         if ($annonce->etat !== 'inactif') {
+             // Si l'état de l'annonce n'est pas 'inactif', ne rien faire
+             return redirect()->route('annonce.index')->with('info', 'L\'annonce est déjà active.');
+         }
+
+         // Mettre à jour l'état de l'annonce à 'actif'
+         $annonce->update(['etat' => 'actif']);
+
+         // Récupérer les utilisateurs dont le groupe sanguin correspond
+         $usersToNotify = User::where('blood_group', $annonce->TypeSang)->get();
+
+         // Créer une notification pour chaque utilisateur correspondant
+         foreach ($usersToNotify as $userToNotify) {
+             Notification::create([
+                 'user_id' => $userToNotify->id,
+                 'annonce_id' => $annonce->id,
+                 'titre' => 'Annonce de demande de sang',
+                 'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
+             ]);
+         }
+
+         // Rediriger avec un message de succès
+         return redirect()->route('annonce.index')->with('success', 'Annonce approuvée avec succès.');
+     }
+
 
     public function showAnnonce($id) {
         $annonce = Annonce::find($id);

@@ -64,7 +64,7 @@ class RegisteredUserController extends Controller
             'pays' => $request->pays,
             'ville' => $request->ville,
             'telephone' => $request->telephone,
-            'image' => $imagePath, 
+            'image' => $imagePath,
             'blood_group' => $request->blood_group,
             'fcm_token' => $request->fcm_token,
         ]);
@@ -178,7 +178,7 @@ class RegisteredUserController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        
+
 
         // Déconnexion de l'utilisateur actuel
         Auth::logout();
@@ -211,13 +211,19 @@ class RegisteredUserController extends Controller
     return response()->json(['message' => 'Groupe sanguin enregistré avec succès.']);
 }
 
+public function apilogout(Request $request): JsonResponse
+{
+    $request->user()->currentAccessToken()->delete();
+    return response()->json(['message' => 'Logged out successfully.']);
+}
+
 
 public function updateFcmToken(Request $request): JsonResponse
 {
     $request->validate([
         'fcm_token' => 'required|string',
     ]);
-    
+
     $user = $request->user();
     $user->fcm_token = $request->fcm_token;
     $user->save();

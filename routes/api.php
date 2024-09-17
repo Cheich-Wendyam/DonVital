@@ -10,6 +10,7 @@ use App\Http\Controllers\CentreSanteController;
 use App\Http\Controllers\DonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PubController;
+use App\Http\Controllers\SendNotification;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +53,7 @@ Route::get('/historiques', [AnnonceController::class, 'HistoriqueAnnonces'])->mi
 Route::get('/notifications/{id}/annonce', [AnnonceController::class, 'getAnnonceByNotification']);
 
 Route::apiResource('centres', CentreSanteController::class)->middleware('auth:sanctum');
-Route::apiResource('dons',DonController::class)->middleware('auth:sanctum'); 
+Route::apiResource('dons',DonController::class)->middleware('auth:sanctum');
 
 
 Route::get('/annonce/{id}/dons', [AnnonceController::class, 'getDons'])->middleware('auth:sanctum');
@@ -65,3 +66,5 @@ Route::apiResource('pub',PubController::class)->middleware('auth:sanctum');
 Route::post('/passwordlink', [PasswordResetLinkController::class, 'sendResetLinkEmail']);
 Route::post('/passwordreset', [PasswordResetLinkController::class, 'updatePassword']);
 Route::post('/verify', [PasswordResetLinkController::class, 'verifyCode'] );
+
+Route::get('/send', [SendNotification::class, 'sendNotification']);

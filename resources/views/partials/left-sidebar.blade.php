@@ -25,7 +25,7 @@
                         <span> Utilisateurs </span>
                     </a>
                 </li>
-
+                @can('gestion role')
                 <!-- Rôles -->
                 <li>
                     <a href="{{ route('roles.index') }}">
@@ -33,22 +33,18 @@
                         <span> Rôles </span>
                     </a>
                 </li>
+                @endcan
 
                 <!-- Permissions -->
+                @can('gestion permission')
                 <li>
                     <a href="{{ route('permissions.index') }}">
                         <i class="la la-key"></i>
                         <span> Permissions </span>
                     </a>
                 </li>
+                @endcan
 
-                <!-- Annonces -->
-                <li>
-                    <a href="{{ route('annonce.index') }}">
-                        <i class="la la-bullhorn"></i>
-                        <span> Annonces </span>
-                    </a>
-                </li>
 
                  <!-- Annonces with Submenu -->
                  <li>
@@ -65,12 +61,12 @@
                         </li>
                         <li>
                             <a href="{{ route('annonce.attente') }}">
-                                <i class="la la-"></i>
+                                <i class="la la-lock"></i>
                                 <span>Annonces en attente</span></a>
                         </li>
                         <li>
                             <a href="{{ route('annonce.fermees') }}">
-                                <i class="la la-lock"></i>
+                                <i class="la la-ban"></i>
                                 <span>Annonces fermées</span></a>
                         </li>
                     </ul>

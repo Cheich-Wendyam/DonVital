@@ -1,6 +1,34 @@
 @extends('layouts.layout')
 
 @section('content')
+
+<style>
+    .card-box {
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        background-color: #ffffff;
+        margin-bottom: 20px;
+    }
+
+    .card-box h4 {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333333;
+        margin-bottom: 15px;
+    }
+
+    .card-box h2 {
+        font-size: 32px;
+        font-weight: 600;
+        color: #007bff;
+    }
+
+    .card-box .text-center {
+        text-align: center;
+    }
+    </style>
+
 <div class="content-page">
     <div class="content">
         <div class="container-fluid">
@@ -11,7 +39,7 @@
                     <div class="page-title-box">
                         <div class="page-title-right">
                             <ol class="breadcrumb m-0">
-                                <li class="breadcrumb-item"><a href="javascript: void(0);">DonVital</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('admin') }}">DonVital</a></li>
                                 <li class="breadcrumb-item active">Admin</li>
                             </ol>
                         </div>
@@ -55,14 +83,14 @@
                         <h4 class="mt-0 font-16">Annonces Fermées</h4>
                         <h2 class="text-primary my-4 text-center">{{ $annoncesFermees }}</h2>
                     </div>
-                </div>  
+                </div>
 
                 <div class="col-xl-3">
                     <div class="card-box">
                         <h4 class="mt-0 font-16">Dons du mois</h4>
                         <h2 class="text-primary my-4 text-center">{{ $donsMoisEnCours }}</h2>
                     </div>
-                </div>  
+                </div>
             </div>
             <!-- Fin des statistiques -->
 

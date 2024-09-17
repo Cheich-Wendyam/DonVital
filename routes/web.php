@@ -24,7 +24,7 @@ use App\Http\Controllers\DashboardController;
 */
 
 
-Route::get('/admin', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:admin'])->name('admin');
+Route::get('/admin', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:admin|éditeur'])->name('admin');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -56,7 +56,7 @@ Route::get('/annonces/{id}/dons', [AnnonceController::class, 'dons'])->name('ann
 
 
 Route::get('/annonces/attente', [AnnonceController::class, 'attente'])->name('annonce.attente');
-Route::post('/annonces/{id}', [AnnonceController::class, 'reject'])->name('annonces.reject');
+Route::patch('/annonces/{id}/reject', [AnnonceController::class, 'reject'])->name('annonces.reject');
 
 Route::get('/utilisateurs', [Controller::class, 'index'])->name('utilisateurs');
 Route::post('/user', [Controller::class, 'createUser'])->name('users.store');
