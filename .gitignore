@@ -17,4 +17,4 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-echo "donvital-firebase-adminsdk-66pdz-6147fe3b01.json" >> .gitignore
+/donvital-firebase-adminsdk-66pdz-6147fe3b01.json
