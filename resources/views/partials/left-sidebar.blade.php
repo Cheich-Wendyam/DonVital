@@ -88,13 +88,6 @@
                     </a>
                 </li>
 
-                <!-- Notifications -->
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="la la-bell"></i>
-                        <span> Notifications </span>
-                    </a>
-                </li>
 
             </ul>
 

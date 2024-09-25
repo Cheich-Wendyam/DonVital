@@ -27,6 +27,16 @@
     .card-box .text-center {
         text-align: center;
     }
+
+    .card-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+
+
+
     </style>
 
 <div class="content-page">

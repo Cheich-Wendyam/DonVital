@@ -31,9 +31,10 @@ class DashboardController extends Controller
         $annoncesFermees = Annonce::where('etat', 'fermé')->count();
 
         // Récupérer le nombre de dons effectués ce mois
-        $donsMoisEnCours = Don::whereMonth('created_at', date('m'))
-                                ->whereYear('created_at', date('Y'))
-                                ->count();
+        $donsMoisEnCours = Don::whereMonth('created_at', Carbon::now()->month)
+                      ->whereYear('created_at', Carbon::now()->year)
+                      ->count();
+
 
         // Créer une liste des mois pour les graphiques
         $mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];

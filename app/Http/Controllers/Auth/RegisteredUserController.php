@@ -198,6 +198,10 @@ class RegisteredUserController extends Controller
         ], 200);
     }
 
+
+
+
+
     public function BloodGroup(Request $request): JsonResponse
 {
     $request->validate([
@@ -220,16 +224,22 @@ public function apilogout(Request $request): JsonResponse
 
 public function updateFcmToken(Request $request): JsonResponse
 {
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json(['error' => 'Utilisateur non authentifié'], 401);
+    }
+
     $request->validate([
         'fcm_token' => 'required|string',
     ]);
 
-    $user = $request->user();
     $user->fcm_token = $request->fcm_token;
     $user->save();
 
     return response()->json(['message' => 'FCM token updated successfully']);
 }
+
 
 public function sendNotification(Request $request)
 {

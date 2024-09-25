@@ -315,42 +315,92 @@ public function HistoriqueAnnonces()
     }
 
     //activer une annonce
-     //activer une annonce
-     public function activerAnnonce($id)
-     {
-        // verifier les permissions
-        if (!Auth::user()->hasPermissionTo('Approuver annonce')) {
-            abort(403, 'Unauthorized action.');
-        }
+    public function activerAnnonce($id)
+{
+    // Vérifier les permissions
+    if (!Auth::user()->hasPermissionTo('Approuver annonce')) {
+        abort(403, 'Unauthorized action.');
+    }
 
-         // Récupérer l'annonce par son identifiant
-         $annonce = Annonce::find($id);
+    // Récupérer l'annonce par son identifiant
+    $annonce = Annonce::find($id);
 
-         // Vérifier si l'annonce est déjà active
-         if ($annonce->etat !== 'inactif') {
-             // Si l'état de l'annonce n'est pas 'inactif', ne rien faire
-             return redirect()->route('annonce.index')->with('info', 'L\'annonce est déjà active.');
-         }
+    // Vérifier si l'annonce est déjà active
+    if ($annonce->etat !== 'inactif') {
+        // Si l'état de l'annonce n'est pas 'inactif', ne rien faire
+        return redirect()->route('annonce.index')->with('info', 'L\'annonce est déjà active.');
+    }
 
-         // Mettre à jour l'état de l'annonce à 'actif'
-         $annonce->update(['etat' => 'actif']);
+    // Mettre à jour l'état de l'annonce à 'actif'
+    $annonce->update(['etat' => 'actif']);
 
-         // Récupérer les utilisateurs dont le groupe sanguin correspond
-         $usersToNotify = User::where('blood_group', $annonce->TypeSang)->get();
+    // Récupérer les utilisateurs dont le groupe sanguin correspond
+    //$usersToNotify = User::where('blood_group', $annonce->TypeSang)->whereNotNull('fcm_token')->get();
+    $usersToNotify = User::where('blood_group', $annonce->TypeSang)->get();
 
-         // Créer une notification pour chaque utilisateur correspondant
-         foreach ($usersToNotify as $userToNotify) {
-             Notification::create([
-                 'user_id' => $userToNotify->id,
-                 'annonce_id' => $annonce->id,
-                 'titre' => 'Annonce de demande de sang',
-                 'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
-             ]);
-         }
+    // Créer une notification pour chaque utilisateur correspondant
+    foreach ($usersToNotify as $userToNotify) {
+       // \Log::info('FCM Token: ' . $userToNotify->fcm_token);
+        // Enregistrer la notification dans la base de données
+        Notification::create([
+            'user_id' => $userToNotify->id,
+            'annonce_id' => $annonce->id,
+            'titre' => 'Annonce de demande de sang',
+            'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
+        ]);
 
-         // Rediriger avec un message de succès
-         return redirect()->route('annonce.index')->with('success', 'Annonce approuvée avec succès.');
-     }
+        // Envoyer une notification push via FCM
+        //$this->sendPushNotification($userToNotify->fcm_token, 'Annonce de demande de sang', 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!');
+    }
+
+    // Rediriger avec un message de succès
+    return redirect()->route('annonce.attente')->with('success', 'Annonce approuvée avec succès.');
+}
+
+/**
+ * Envoyer une notification push via FCM
+ */
+protected function sendPushNotification($fcmToken, $title, $message)
+{
+    $SERVER_API_KEY = env('FCM_SERVER_KEY');
+
+    $data = [
+        "registration_ids" => [$fcmToken],
+        "notification" => [
+            "title" => $title,
+            "body" => $message,
+            "content_available" => true,
+            "priority" => "high",
+        ],
+    ];
+
+    $dataString = json_encode($data);
+
+    $headers = [
+        'Authorization: key=' . $SERVER_API_KEY,
+        'Content-Type: application/json',
+    ];
+
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send');
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
+
+    $response = curl_exec($ch);
+    $error = curl_error($ch); // Capture curl error if any
+
+    curl_close($ch);
+
+    // Log the FCM response for debugging
+    \Log::info("FCM Response: " . $response);
+    \Log::error("FCM Error: " . $error); // Log error if curl fails
+
+    return json_decode($response);
+}
 
 
     public function showAnnonce($id) {

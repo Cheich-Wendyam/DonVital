@@ -20,6 +20,13 @@
                 </div>
             </div>
 
+            <!-- message de success -->
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <!-- Liste des annonces inactives -->
             <div class="row">
                 <div class="col-12">
@@ -45,7 +52,7 @@
                                         <tr>
                                             <td>{{ $annonce->titre }}</td>
                                             <td>{{ $annonce->description }}</td>
-                                            <td>{{ $annonce->groupesanguin }}</td>
+                                            <td>{{ $annonce->TypeSang }}</td>
                                             <td>{{ $annonce->raison }}</td>
                                             <td>
                                                 <!-- Bouton Voir Détail -->

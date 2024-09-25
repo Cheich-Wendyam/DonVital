@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'apiRegister']);
 
 Route::post('login', [App\Http\Controllers\Auth\RegisteredUserController::class, 'apiLogin']);
+Route::post('logout', [ProfileController::class, 'deconnexion'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->get('/profile', [ProfileController::class, 'getProfile']);
 Route::middleware('auth:sanctum')->post('/updateprofile', [ProfileController::class, 'updateProfile']);
@@ -42,8 +43,7 @@ Route::get('/annonces/{id}', [AnnonceController::class, 'show'])->middleware('au
 //Route::put('/annonces/{id}', [AnnonceController::class, 'update']);
 //Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy']);
 
-Route::post('/fcm', [RegisteredUserController::class, 'updateFcmToken'])
-    ->middleware('auth:sanctum');
+Route::post('/fcm', [RegisteredUserController::class, 'updateFcmToken']);
 
 Route::get('/notifications', [AnnonceController::class, 'getNotifications'])->middleware('auth:sanctum');
 Route::post('/mark/{id}', [AnnonceController::class, 'markAsRead'])->middleware('auth:sanctum');

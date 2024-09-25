@@ -92,7 +92,7 @@ class ProfileController extends Controller
         // Créez l'URL complète pour l'image de profil
         $user->image = asset('storage/' . $user->image);
     }
-       
+
         // Retourner toutes les informations de l'utilisateur
         return response()->json($user);
     }
@@ -102,21 +102,21 @@ class ProfileController extends Controller
         try {
             $user = $request->user();
             $data = $request->validated();
-    
+
             if ($request->hasFile('image')) {
                 // Supprimer l'ancienne image si nécessaire
                 if ($user->image) {
                     Storage::delete($user->image);
                 }
-    
+
                 // Stocker la nouvelle image
                 $data['image'] = $request->file('image')->store('images', 'public');
             }
-    
+
             $user->fill($data);
-    
+
             $user->save();
-    
+
             // Retourner une réponse JSON de succès
             return response()->json([
                 'status' => 'success',
@@ -133,5 +133,12 @@ class ProfileController extends Controller
         }
     }
 
-   
+    // deconnecter l'utilisateur
+    public function deconnexion(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out successfully.']);
+    }
+
+
 }
