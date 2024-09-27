@@ -11,6 +11,8 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
+use App\Services\FirebaseService;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -31,8 +33,8 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+    return view('auth.login');
+})->name('login');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -101,3 +103,11 @@ Route::get('/annonce/{id}', [AnnonceController::class, 'showAnnonce'])->name('an
 
 
 require __DIR__.'/auth.php';
+
+
+Route::get('/notify', function () {
+    $firebaseService = new FirebaseService();
+    $firebaseService->sendNotification("dDAdjIXtTruqg6XfwsZI7A:APA91bGX8wh4hXS7vmn1yWJIiWY02pN5O77MZ1uqb5HiGbmH9ubpJQG26wrwsyFueBwcqiLESY6JgexWckOLos_ezgK168U0lEoukVslv-6-q1qqFeVGE6indlcin8UcQL7Cfsk_yFni",
+     'Annonce de demande de sang',
+     'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!', []);
+});

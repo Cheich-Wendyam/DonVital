@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\BloodRequestNotification;
 use App\Events\AnnonceCreee;
 use App\Models\Notification;
+use Google\Client as GoogleClient;
+use Illuminate\Support\Facades\Log;
+use App\Services\FirebaseService;
+
 
 class AnnonceController extends Controller
 {
@@ -314,12 +318,12 @@ public function HistoriqueAnnonces()
         return response()->json(['message' => 'Annonce desactivée avec succès.']);
     }
 
-    //activer une annonce
-    public function activerAnnonce($id)
+  // Activer une annonce
+public function activerAnnonce($id)
 {
     // Vérifier les permissions
     if (!Auth::user()->hasPermissionTo('Approuver annonce')) {
-        abort(403, 'Unauthorized action.');
+        abort(403, 'Action non autorisée.');
     }
 
     // Récupérer l'annonce par son identifiant
@@ -327,35 +331,50 @@ public function HistoriqueAnnonces()
 
     // Vérifier si l'annonce est déjà active
     if ($annonce->etat !== 'inactif') {
-        // Si l'état de l'annonce n'est pas 'inactif', ne rien faire
         return redirect()->route('annonce.index')->with('info', 'L\'annonce est déjà active.');
     }
 
-    // Mettre à jour l'état de l'annonce à 'actif'
-    $annonce->update(['etat' => 'actif']);
 
-    // Récupérer les utilisateurs dont le groupe sanguin correspond
-    //$usersToNotify = User::where('blood_group', $annonce->TypeSang)->whereNotNull('fcm_token')->get();
-    $usersToNotify = User::where('blood_group', $annonce->TypeSang)->get();
 
-    // Créer une notification pour chaque utilisateur correspondant
-    foreach ($usersToNotify as $userToNotify) {
-       // \Log::info('FCM Token: ' . $userToNotify->fcm_token);
-        // Enregistrer la notification dans la base de données
-        Notification::create([
-            'user_id' => $userToNotify->id,
-            'annonce_id' => $annonce->id,
-            'titre' => 'Annonce de demande de sang',
-            'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
-        ]);
+    try {
+        // Mettre à jour l'état de l'annonce à 'actif'
+        $annonce->update(['etat' => 'actif']);
 
-        // Envoyer une notification push via FCM
-        //$this->sendPushNotification($userToNotify->fcm_token, 'Annonce de demande de sang', 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!');
+        // Récupérer les utilisateurs dont le groupe sanguin correspond
+        $usersToNotify = User::where('blood_group', $annonce->TypeSang)->get();
+
+        // Créer une notification pour chaque utilisateur correspondant
+        foreach ($usersToNotify as $userToNotify) {
+            // Enregistrer la notification dans la base de données
+            Notification::create([
+                'user_id' => $userToNotify->id,
+                'annonce_id' => $annonce->id,
+                'titre' => 'Annonce de demande de sang',
+                'message' => 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!',
+            ]);
+
+            // Envoyer une notification push via FCM si le token est disponible
+            if ($userToNotify->fcm_token) {
+                // $this->sendPushNotification($userToNotify->fcm_token, 'Annonce de demande de sang', 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!');
+                $firebaseService = new FirebaseService();
+                $firebaseService->sendNotification($userToNotify->fcm_token, 'Annonce de demande de sang', 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!', []);
+
+            } else {
+                Log::warning("Aucun token FCM pour l'utilisateur ID: " . $userToNotify->id);
+            }
+        }
+
+
+
+        return redirect()->route('annonce.attente')->with('success', 'Annonce approuvée avec succès.');
+
+    } catch (\Exception $e) {
+
+        Log::error("Erreur lors de l'activation de l'annonce: " . $e->getMessage());
+        return redirect()->route('annonce.attente')->with('error', 'Erreur lors de l\'approbation de l\'annonce.');
     }
-
-    // Rediriger avec un message de succès
-    return redirect()->route('annonce.attente')->with('success', 'Annonce approuvée avec succès.');
 }
+
 
 /**
  * Envoyer une notification push via FCM
@@ -365,12 +384,10 @@ protected function sendPushNotification($fcmToken, $title, $message)
     $SERVER_API_KEY = env('FCM_SERVER_KEY');
 
     $data = [
-        "registration_ids" => [$fcmToken],
+        "to" => $fcmToken,
         "notification" => [
             "title" => $title,
             "body" => $message,
-            "content_available" => true,
-            "priority" => "high",
         ],
     ];
 
@@ -443,6 +460,18 @@ public function reject($id)
 {
     $annonce = Annonce::find($id);
     $annonce->update(['etat' => 'fermé']);
+    // notifier l'utilisateur de l'annnonce qu'elle a ete rejetée
+    $user = $annonce->user;
+     // Envoyer une notification push via FCM si le token est disponible
+     if ($user->fcm_token) {
+        // $this->sendPushNotification($userToNotify->fcm_token, 'Annonce de demande de sang', 'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!');
+        $firebaseService = new FirebaseService();
+        $firebaseService->sendNotification($user->fcm_token, 'Votre derniere annonce est rejetée', 'Créez une nouvelle annonce en respectant les conditions', []);
+
+    } else {
+        Log::warning("Aucun token FCM pour l'utilisateur ID: " . $user->id);
+    }
+
     return redirect()->route('annonce.index')->with('success', 'Annonce rejetée avec succès.');
 }
 

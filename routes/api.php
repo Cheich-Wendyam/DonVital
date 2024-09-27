@@ -68,3 +68,89 @@ Route::post('/passwordreset', [PasswordResetLinkController::class, 'updatePasswo
 Route::post('/verify', [PasswordResetLinkController::class, 'verifyCode'] );
 
 Route::get('/send', [SendNotification::class, 'sendNotification']);
+
+use Google\Client as GoogleClient;
+
+use App\Models\User;
+
+Route::get('/sendnotifications', function () {
+    // Récupérer les tokens FCM des utilisateurs concernés
+    $users = User::whereNotNull('fcm_token')->pluck('fcm_token')->toArray();
+
+    // Si vous n'avez pas d'utilisateurs avec des tokens, retournez une erreur
+    if (empty($users)) {
+        return response()->json([
+            'message' => 'Aucun utilisateur avec un token FCM'
+        ], 404);
+    }
+
+    $title = "Bonjour";
+    $description = "Ceci est une notification pour plusieurs utilisateurs.";
+
+    // Charger le fichier d'authentification Google
+    $credentialsFilePath = public_path('json/file.json'); // Assurez-vous que ce chemin est correct
+    if (!file_exists($credentialsFilePath)) {
+        return response()->json([
+            'message' => 'Le fichier d\'authentification Google est introuvable.'
+        ], 500);
+    }
+
+    $client = new GoogleClient();
+    $client->setAuthConfig($credentialsFilePath);
+    $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
+    $client->refreshTokenWithAssertion();
+
+    // Vérifiez si le token d'accès est bien récupéré
+    $token = $client->getAccessToken();
+    if (isset($token['access_token'])) {
+        $access_token = $token['access_token'];
+    } else {
+        return response()->json([
+            'message' => 'Erreur lors de la récupération du token d\'accès.'
+        ], 500);
+    }
+
+    $headers = [
+        "Authorization: Bearer $access_token",
+        'Content-Type: application/json'
+    ];
+
+    $fcm = $users;
+    $data = [
+        "message" => [
+            "token" => $fcm,
+            "notification" => [
+                "title" => $title,
+                "body" => $description,
+            ],
+        ]
+    ];
+
+    $payload = json_encode($data);
+
+    // Initialisation de cURL
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://fcm.googleapis.com/v1/projects/donvital/messages:send');
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+    // Exécution de la requête
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    // Gestion des erreurs cURL
+    if ($err) {
+        return response()->json([
+            'message' => 'Erreur cURL: ' . $err
+        ], 500);
+    } else {
+        return response()->json([
+            'message' => 'Notifications envoyées à plusieurs utilisateurs',
+            'response' => json_decode($response, true)
+        ]);
+    }
+})->name('sendnotifications');
