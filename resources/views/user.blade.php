@@ -61,8 +61,13 @@
                                 </thead>
                                 <tbody>
                                     @foreach($users as $user)
-                                        <tr>
-                                            <td>{{ $user->name }}</td>
+                                        <tr class="{{ $user->is_blocked ? 'table-danger' : '' }}">
+                                            <td>
+                                                {{ $user->name }}
+                                                @if($user->is_blocked)
+                                                    <span class="badge badge-danger ml-2">Bloqué</span>
+                                                @endif
+                                            </td>
                                             <td>{{ $user->email }}</td>
                                             <td>
                                                 @foreach($user->roles as $role)
@@ -73,10 +78,18 @@
                                                 <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#editUserModal-{{ $user->id }}">Modifier</button>
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal-{{ $user->id }}">Supprimer</button>
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#changeRoleModal-{{ $user->id }}">Changer le rôle</button>
+
+                                                    <!-- Other buttons like Edit and Delete -->
+                                                    <form action="{{ route('block', $user->id) }}" method="POST" style="display:inline;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-sm {{ $user->is_blocked ? 'btn-success' : 'btn-danger' }}">
+                                                            {{ $user->is_blocked ? 'Débloquer' : 'Bloquer' }}
+                                                        </button>
+                                                    </form>
                                             </td>
                                         </tr>
-                                        
-                                      
+
+
 
 <!-- Modal for editing user -->
 <div class="modal fade" id="editUserModal-{{ $user->id }}" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel-{{ $user->id }}" aria-hidden="true">
@@ -269,7 +282,7 @@
 </div>
 
 
- 
+
 
 <!-- Vendor js -->
 <script src="{{ asset('js/vendor.min.js') }}"></script>

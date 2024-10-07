@@ -179,6 +179,11 @@ class RegisteredUserController extends Controller
         }
 
 
+         // Check if the user is blocked
+    if ($user->is_blocked) {
+        return response()->json(['error' => 'votre compte est bloqué.'], 403);
+    }
+
 
         // Déconnexion de l'utilisateur actuel
         Auth::logout();
@@ -238,6 +243,18 @@ public function updateFcmToken(Request $request): JsonResponse
     $user->save();
 
     return response()->json(['message' => 'FCM token updated successfully']);
+}
+
+
+// bloquer un utilisateur
+public function toggleBlockUser($id)
+{
+    $user = User::findOrFail($id);
+    $user->is_blocked = !$user->is_blocked; // Toggle the block status
+    $user->save();
+
+    $message = $user->is_blocked ? 'Utilisateur bloqué avec succès.' : 'Utilisateur débloqué avec succès.';
+    return redirect()->back()->with('success', $message);
 }
 
 

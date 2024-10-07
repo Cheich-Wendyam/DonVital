@@ -26,15 +26,17 @@ use App\Services\FirebaseService;
 */
 
 
-Route::get('/admin', [DashboardController::class, 'index'])->middleware(['auth', 'verified', 'role:admin|éditeur'])->name('admin');
+Route::get('/admin', [DashboardController::class, 'index'])->middleware(['auth', 'block.user','verified', 'role:admin|éditeur'])->name('admin');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/', function () {
-    return view('auth.login');
-})->name('login');
+    return view('admin');
+})->name('admin');
+
+Route::post('block/{id}', [RegisteredUserController::class, 'toggleBlockUser'])->name('block');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -98,7 +100,7 @@ Route::put('/annonces/{id}', [AnnonceController::class, 'update'])->name('annonc
 
 Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
 Route::patch('/annonces/{id}', [AnnonceController::class, 'activerAnnonce'])->name('annonces.approve');
-Route::post('/annonces', [AnnonceController::class, 'store'])->name('annonces.store');
+Route::post('/annonces', [AnnonceController::class, 'store2'])->name('annonces.store');
 Route::get('/annonce/{id}', [AnnonceController::class, 'showAnnonce'])->name('annonces.show');
 
 

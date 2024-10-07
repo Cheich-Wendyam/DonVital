@@ -96,6 +96,41 @@ class AnnonceController extends Controller
          ], 201);
      }
 
+     public function store2(Request $request)
+     {
+         $validator = Validator::make($request->all(), [
+             'titre' => ['required', 'string', 'max:255'],
+             'description' => ['required', 'string'],
+             'raison' => ['nullable', 'string'],
+             'TypeSang' => ['nullable', 'string'],
+             'CentreSante' => ['nullable', 'string'],
+             'etat' => ['nullable', 'string'],
+
+
+
+         ]);
+
+         $user = Auth::user(); // Obtenir l'utilisateur actuellement connecté
+
+         $etat='actif';
+
+         // Créer l'annonce
+         $annonce = Annonce::create([
+             'titre' => $request->titre,
+             'description' => $request->description,
+             'raison' => $request->raison,
+             'TypeSang' => $request->TypeSang,
+             'CentreSante' => $request->CentreSante,
+             'etat' => $etat,
+             'user_id' => $user->id, // Associer l'annonce à l'utilisateur
+
+         ]);
+
+         // Inclure l'image de l'utilisateur dans la réponse
+         $annonce->userImage = $user->image;
+
+         return redirect()->route('annonce.index')->with('success', 'Annonce publiée avec succès.');
+     }
 
     /**
      * Affiche les détails d'une annonce spécifique.
@@ -192,7 +227,7 @@ class AnnonceController extends Controller
         $annonce = Annonce::find($id);
         $annonce->delete();
 
-        return redirect()->route('annonce.index')->with('success', 'Annonce supprimée avec succès.');
+        return redirect()->back()->with('success', 'Annonce supprimée avec succès.');
     }
 
     public function getNotifications()

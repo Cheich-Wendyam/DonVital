@@ -216,11 +216,15 @@
                     </div>
                     <div class="form-group">
                         <label for="groupesanguin">Groupe Sanguin</label>
-                        <input type="text" class="form-control" id="groupesanguin" name="groupesanguin" required>
+                        <input type="text" class="form-control" id="TypeSang" name="TypeSang" required>
                     </div>
                     <div class="form-group">
                         <label for="raison">Raison</label>
                         <input type="text" class="form-control" id="raison" name="raison" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="Centre de Santé">Centre de Santé</label>
+                        <input type="text" class="form-control" id="CentreSante" name="CentreSante" required>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -27,6 +27,12 @@
 
                             <div class="card-body p-4">
 
+                                @if (session('error'))
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ session('error') }}
+                                    </div>
+                                @endif
+
                                 <div class="text-center w-75 m-auto">
                                     <a href="{{ url('/') }}">
                                         <span><img src="{{ asset('images/Icon.ico') }}" alt="" height="80"></span>

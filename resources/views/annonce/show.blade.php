@@ -41,7 +41,8 @@
                                 </li>
                             </ul>
                             <div class="mt-4">
-                                <a href="{{ route('annonce.index') }}" class="btn btn-secondary">Retour à la liste</a>
+                                <!-- retour en arrière -->
+                                <a href="javascript: history.go(-1)" class="btn btn-primary">Retour</a>
                             </div>
                         </div> <!-- end card-body-->
                     </div> <!-- end card-->

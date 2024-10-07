@@ -32,6 +32,7 @@ class User extends Authenticatable
         'image',
         'blood_group',
         'fcm_token',
+        'is_blocked',
     ];
 
     /**
