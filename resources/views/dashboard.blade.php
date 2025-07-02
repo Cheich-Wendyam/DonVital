@@ -1,43 +1,13 @@
 @extends('layouts.layout')
 
 @section('content')
+<!-- Loader -->
+<div id="dashboard-loader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:9999;display:flex;justify-content:center;align-items:center;">
+    <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+        <span class="visually-hidden">Chargement...</span>
+    </div>
+</div>
 
-<style>
-    .card-box {
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        background-color: #ffffff;
-        margin-bottom: 20px;
-    }
-
-    .card-box h4 {
-        font-size: 16px;
-        font-weight: bold;
-        color: #333333;
-        margin-bottom: 15px;
-    }
-
-    .card-box h2 {
-        font-size: 32px;
-        font-weight: 600;
-        color: #007bff;
-    }
-
-    .card-box .text-center {
-        text-align: center;
-    }
-
-    .card-box:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-}
-
-
-
-
-    </style>
 
 <div class="content-page">
     <div class="content">
@@ -144,113 +114,20 @@
 </div>
 
 
+<!-- CSS personnalisé -->
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
 <!-- Vendor js -->
 <script src="{{ asset('js/vendor.min.js') }}"></script>
 
+<!-- Librairies -->
+<script src="{{ asset('libs/peity/jquery.peity.min.js') }}"></script>
+<script src="{{ asset('libs/apexcharts/apexcharts.min.js') }}"></script>
+<script src="{{ asset('libs/jquery-vectormap/jquery-jvectormap-1.2.2.min.js') }}"></script>
+<script src="{{ asset('libs/jquery-vectormap/jquery-jvectormap-us-merc-en.js') }}"></script>
 
+<!-- JS personnalisé -->
+<script src="{{ asset('js/dashboard.js') }}"></script>
 
-
-<!-- Third Party js-->
-<script src="{{asset('libs/peity/jquery.peity.min.js')}}"></script>
-<script src="{{asset('libs/apexcharts/apexcharts.min.js')}}"></script>
-<script src="{{asset('libs/jquery-vectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>
-<script src="{{asset('libs/jquery-vectormap/jquery-jvectormap-us-merc-en.js')}}"></script>
-
-
-<!-- Initialisation des graphiques -->
-<script>
-    // Convertir les données PHP en JSON pour les utiliser en JS
-    var annoncesParMois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('annonces_data'));
-    var donsParMois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('dons_data'));
-    var mois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('mois'));
-    var $annoncesActives = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('active_data'));
-    var $annoncesInactives = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('inactive_data'));
-    var $annoncesFermees = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('ferme_data'));
-
-    // Graphique des annonces et dons par mois
-    var options1 = {
-        chart: {
-            type: 'bar',
-            height: 350
-        },
-        series: [{
-            name: 'Annonces',
-            data: annoncesParMois
-        }, {
-            name: 'Dons',
-            data: donsParMois
-        }],
-        xaxis: {
-            categories: mois
-        }
-    };
-    var chart1 = new ApexCharts(document.querySelector("#annoncesDonsChart"), options1);
-    chart1.render();
-
-    // Graphique des annonces actives vs inactives
-    var options2 = {
-        chart: {
-            type: 'pie',
-            height: 350
-        },
-        series: [ $annoncesActives ,  $annoncesInactives, $annoncesFermees],
-        labels: ['Actifs', 'Inactifs', 'Fermées'],
-    };
-    var chart2 = new ApexCharts(document.querySelector("#annoncesActivesChart"), options2);
-    chart2.render();
-
-    // Récupération des données des utilisateurs connectés
-    var usersLastWeek = JSON.parse(document.getElementById('apex-radialbar-2').getAttribute('data_weekUsers'));
-    var usersLastMonth = JSON.parse(document.getElementById('apex-radialbar-3').getAttribute('data_monthUsers'));
-
-    // Graphique radial pour les utilisateurs connectés cette semaine
-    var radialOptions1 = {
-        chart: {
-            type: 'radialBar',
-            height: 350
-        },
-        series: [usersLastWeek],
-        labels: ['Connexions cette semaine'],
-        plotOptions: {
-            radialBar: {
-                dataLabels: {
-                    name: {
-                        fontSize: '22px',
-                    },
-                    value: {
-                        fontSize: '16px',
-                    }
-                }
-            }
-        }
-    };
-    var radialChart1 = new ApexCharts(document.querySelector("#apex-radialbar-2"), radialOptions1);
-    radialChart1.render();
-
-    // Graphique radial pour les utilisateurs connectés ce mois
-    var radialOptions2 = {
-        chart: {
-            type: 'radialBar',
-            height: 350
-        },
-        series: [usersLastMonth],
-        labels: ['Connexions ce mois'],
-        plotOptions: {
-            radialBar: {
-                dataLabels: {
-                    name: {
-                        fontSize: '22px',
-                    },
-                    value: {
-                        fontSize: '16px',
-                    }
-                }
-            }
-        }
-    };
-    var radialChart2 = new ApexCharts(document.querySelector("#apex-radialbar-3"), radialOptions2);
-    radialChart2.render();
-</script>
 
 @endsection

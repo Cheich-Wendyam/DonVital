@@ -12,6 +12,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Services\FirebaseService;
+use App\Http\Controllers\CampagneController;
+
 
 
 /*
@@ -33,8 +35,9 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/', function () {
-    return view('admin');
-})->name('admin');
+    return redirect()->route('admin');
+});
+route::post('/register' ,[RegisteredUserController::class,'register']);
 
 Route::post('block/{id}', [RegisteredUserController::class, 'toggleBlockUser'])->name('block');
 
@@ -104,6 +107,9 @@ Route::post('/annonces', [AnnonceController::class, 'store2'])->name('annonces.s
 Route::get('/annonce/{id}', [AnnonceController::class, 'showAnnonce'])->name('annonces.show');
 
 
+
+
+
 require __DIR__.'/auth.php';
 
 
@@ -113,3 +119,6 @@ Route::get('/notify', function () {
      'Annonce de demande de sang',
      'Une nouvelle annonce de demande de sang correspond à votre groupe sanguin!', []);
 });
+
+
+

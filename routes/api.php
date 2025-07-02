@@ -11,7 +11,7 @@ use App\Http\Controllers\DonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PubController;
 use App\Http\Controllers\SendNotification;
-
+use App\Http\Controllers\CampagneController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,7 +25,10 @@ use App\Http\Controllers\SendNotification;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+     Route::apiResource('campagnes', CampagneController::class);
+
 });
+ Route::apiResource('campagnes', CampagneController::class);
 
 Route::post('register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'apiRegister']);
 
