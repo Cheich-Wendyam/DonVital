@@ -1,0 +1,21 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#6154
+    [34mid[39m: [35m3[39m,
+    [34mname[39m: "[32mAbdoul[39m",
+    [34memail[39m: "[32msawadogo12@gmail.com[39m",
+    [34memail_verified_at[39m: [36mnull[39m,
+    #[33mpassword[39m: "[32m$2y$12$RG6f0eEGI/B9tZ1OxRMcb.9BMcfW0AxlQyRxPV3v7B6F12Xpt.8f.[39m",
+    [34mlast_login_at[39m: "[32m2025-07-04 08:53:28[39m",
+    [34mage[39m: [35m21[39m,
+    [34msexe[39m: "[32mHomme[39m",
+    [34mpays[39m: "[32mBurkina Faso[39m",
+    [34mville[39m: "[32mOuagadougou[39m",
+    [34mtelephone[39m: "[32m57057504[39m",
+    [34mimage[39m: "[32mimages/hWaOonvd9OlA43VV7hl6zpA2kBurl0WP6nX273XW.jpg[39m",
+    [34mblood_group[39m: [36mnull[39m,
+    #[33mremember_token[39m: "[32mbZFSJZdQCoDbJVlw64P1MgtOarsMOqCgfpjXRY0Y7YdzQ5UdhFOhflXhM1sY[39m",
+    [34mfcm_token[39m: [36mnull[39m,
+    [34mcreated_at[39m: "[32m2025-06-18 15:20:17[39m",
+    [34mupdated_at[39m: "[32m2025-07-04 08:53:28[39m",
+    [34mis_blocked[39m: [35m0[39m,
+  }
+

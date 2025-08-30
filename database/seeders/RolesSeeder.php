@@ -13,8 +13,12 @@ class RolesSeeder extends Seeder
      */
     public function run(): void
     {
-         // Création des rôles
-         Role::create(['name' => 'admin']);
-         Role::create(['name' => 'utilisateur_normal']);
+        if (!Role::where('name', 'admin')->where('guard_name', 'web')->exists()) {
+        Role::create(['name' => 'admin', 'guard_name' => 'web']);
+    }
+
+    if (!Role::where('name', 'utilisateur_normal')->where('guard_name', 'web')->exists()) {
+        Role::create(['name' => 'utilisateur_normal', 'guard_name' => 'web']);
+    }
     }
 }

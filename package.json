@@ -16,6 +16,10 @@
         "vite": "^5.4.3"
     },
     "dependencies": {
-        "firebase": "^10.13.1"
+        "express": "^5.1.0",
+        "firebase": "^10.13.1",
+        "laravel-echo": "^2.1.6",
+        "socket.io": "^4.8.1",
+        "socket.io-client": "^4.8.1"
     }
 }

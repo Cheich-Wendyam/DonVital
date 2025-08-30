@@ -464,7 +464,7 @@ protected function sendPushNotification($fcmToken, $title, $message)
     public function attente()
 {
     // Récupérer les annonces avec l'état 'inactif'
-    $annonces = Annonce::where('etat', 'inactif')->get();
+    $annonces = Annonce::where('etat', 'actif')->get();
 
     // Retourner la vue 'attente' avec les annonces
     return view('annonce.attente', compact('annonces'));

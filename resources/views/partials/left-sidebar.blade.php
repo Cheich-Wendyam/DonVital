@@ -87,7 +87,95 @@
                         <span> Publicité </span>
                     </a>
                 </li>
-               
+
+                <!-- NOUVEAU MENU CAMPAGNES -->
+                <!-- Campagnes avec sous-menu -->
+                <li>
+                    <a href="javascript: void(0);" aria-expanded="false">
+                        <i class="la la-calendar-check-o"></i>
+                        <span> Campagnes </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('campagnes.index') }}">
+                                <i class="la la-list"></i>
+                                <span>Toutes les campagnes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('campagnes.participants.all') }}">
+                                <i class="la la-users"></i>
+                                <span>Participants</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- FIN DU MENU CAMPAGNES -->
+
+                <li>
+                    <a href="{{ route('rewards.index') }}">
+                        <i class="la la-trophy"></i>
+                        <span> Récompenses </span>
+                    </a>
+                </li>
+                <!-- Conversations -->
+                <li>
+                    <a href="{{ route('admin.conversations.index') }}">
+                        <i class="la la-comments"></i>
+                        <span> Conversations </span>
+                    </a>
+                </li>
+                <li class="{{ request()->is('admin/dons') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dons.index') }}">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        <span>Dons</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('admin.donation-records.index') }}">
+                        <i class="la la-comments"></i>
+                        <span>Carnets</span>
+                    </a>
+                </li>
+
+
+
+                                <li>
+                    <a href="javascript: void(0);" aria-expanded="false">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span> Éducation </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('education.dashboard') }}">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Tableau de bord</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('education.index') }}">
+                                <i class="fas fa-book"></i>
+                                <span>Contenus éducatifs</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('education.create') }}">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Créer un contenu</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('education.statistics') }}">
+                                <i class="fas fa-chart-pie"></i>
+                                <span>Statistiques</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
 
             </ul>

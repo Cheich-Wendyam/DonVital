@@ -1,5 +1,8 @@
 <?php
 
+
+use Google\Client as GoogleClient;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnnonceController;
@@ -12,6 +15,16 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PubController;
 use App\Http\Controllers\SendNotification;
 use App\Http\Controllers\CampagneController;
+use App\Http\Controllers\RewardController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\DonationRecordController;
+use App\Http\Controllers\CampagneParticipationController;
+use App\Http\Controllers\EducationController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\EducationProgressController;
+
+//use App\Http\Controllers\ConversationController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,13 +35,49 @@ use App\Http\Controllers\CampagneController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::get('/education/contents', [EducationController::class, 'getContents']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', fn (Request $request) => $request->user());
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-     Route::apiResource('campagnes', CampagneController::class);
 
+    // Routes de messagerie
+    Route::post('/conversations', [ChatController::class, 'createConversation']);
+    Route::get('/conversations', [ChatController::class, 'getUserConversations']);
+    Route::post('/messages/send/{conversationId}', [ChatController::class, 'sendMessage']);
+    Route::get('/messages/{conversationId}', [ChatController::class, 'getMessages']);
+    // routes/api.php
+    Route::get('/contacts', [UserController::class, 'getContacts']);
+    Route::get('/users', [UserController::class, 'index1']);
+
+
+    Route::get('/donation-records', [DonationRecordController::class, 'index']);
+    Route::post('/donation-records', [DonationRecordController::class, 'store']);
+    Route::delete('/donation-records/{id}', [DonationRecordController::class, 'destroy']);
+    Route::get('/next-donation-date', [DonationRecordController::class, 'nextEligibleDate']);
+    Route::get('/carnet/{userId}', [DonationRecordController::class, 'show'])->name('carnet.show');
+
+
+
+    Route::get('/education/contents/{id}', [EducationController::class, 'getContentDetail']);
+    Route::post('/education/contents/{id}/complete', [EducationController::class, 'completeContent']);
+    Route::get('/education/progress', [EducationController::class, 'getUserProgress']);
+    Route::get('/education/recommended', [EducationController::class, 'getRecommendedContents']);
+    Route::post('/education/contents', [EducationController::class, 'apiStore']);
 });
- Route::apiResource('campagnes', CampagneController::class);
+
+Route::get('/test-route', function () {
+    return response()->json(['message' => 'Test route OK']);
+});
+
+
+
+
+
+
+//chatbot
+Route::middleware('auth:sanctum')->post('/chatbot', [ChatbotController::class, 'ask']);
+
+
 
 Route::post('register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'apiRegister']);
 
@@ -40,11 +89,16 @@ Route::middleware('auth:sanctum')->post('/updateprofile', [ProfileController::cl
 Route::post('/groupsanguin', [RegisteredUserController::class, 'BloodGroup'])
     ->middleware('auth:sanctum');
 
+
+
+Route::middleware('auth:sanctum')->get('/rewards', [RewardController::class, 'getRewards']);
+Route::middleware('auth:sanctum')->post('/rewards/claim/{id}', [RewardController::class, 'claimReward']);
+
 Route::get('/annonces', [AnnonceController::class, 'index']);
 Route::middleware('auth:sanctum')->post('/annonces', [AnnonceController::class, 'store']);
-Route::get('/annonces/{id}', [AnnonceController::class, 'show'])->middleware('auth:sanctum');
-//Route::put('/annonces/{id}', [AnnonceController::class, 'update']);
-//Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy']);
+Route::get('/annonces/{id}', [AnnonceController::class, 'show']);
+Route::put('/annonces/{id}', [AnnonceController::class, 'update']);
+Route::delete('/annonces/{id}', [AnnonceController::class, 'destroy']);
 
 Route::post('/fcm', [RegisteredUserController::class, 'updateFcmToken']);
 
@@ -66,15 +120,36 @@ Route::post('confirmDon/{id}', [DonController::class, 'confirmDon'])->middleware
 Route::post('annulerDon/{id}', [DonController::class, 'annulerDon'])->middleware('auth:sanctum');
 Route::apiResource('pub',PubController::class)->middleware('auth:sanctum');
 
+
+
+// ✅ Route publique
+Route::get('/campagnes/actives', [CampagneController::class, 'activeCampagnes'])->name('campagnes.actives');
+
+// ✅ Routes protégées
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/campagnes/{id}', [CampagneController::class, 'show'])->where('id', '[0-9]+');
+    Route::post('/campagnes', [CampagneController::class, 'store']);
+    Route::put('/campagnes/{id}', [CampagneController::class, 'update']);
+    Route::delete('/campagnes/{id}', [CampagneController::class, 'destroy']);
+
+    Route::get('/user/campagnes', [CampagneParticipationController::class, 'userCampagnes']);
+    Route::post('/campagnes/{id}/register', [CampagneParticipationController::class, 'register']);
+    Route::delete('/campagnes/{id}/unregister', [CampagneParticipationController::class, 'unregister']);
+    Route::get('/campagnes/{id}/participants', [CampagneParticipationController::class, 'campagneUsers']);
+
+});
+
+
+
+
+
 Route::post('/passwordlink', [PasswordResetLinkController::class, 'sendResetLinkEmail']);
 Route::post('/passwordreset', [PasswordResetLinkController::class, 'updatePassword']);
 Route::post('/verify', [PasswordResetLinkController::class, 'verifyCode'] );
 
 Route::get('/send', [SendNotification::class, 'sendNotification']);
 
-use Google\Client as GoogleClient;
 
-use App\Models\User;
 
 Route::get('/sendnotifications', function () {
     // Récupérer les tokens FCM des utilisateurs concernés

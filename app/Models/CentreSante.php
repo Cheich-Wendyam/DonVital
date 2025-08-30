@@ -9,5 +9,16 @@ class CentreSante extends Model
 {
     use HasFactory;
 
+
     protected $fillable = ['nom', 'localisation', 'image', 'description', 'latitude', 'longitude'];
+
+
+public function campagnes()
+{
+    return $this->hasMany(Campagne::class, 'centre_sante_id');
+}
+
+
+
+
 }

@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -70,4 +71,31 @@ class User extends Authenticatable
      {
          return $this->hasMany(Don::class);
      }
+   public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class);
+    }
+    public function rewards()
+    {
+        return $this->belongsToMany(Reward::class)
+                    ->withPivot('claimed_at')
+                    ->withTimestamps();
+    }
+
+    public function donations()
+    {
+        return $this->hasMany(Don::class);
+    }
+    public function donationRecords()
+    {
+        return $this->hasMany(DonationRecord::class);
+    }
+    public function contentCompletions()
+    {
+        return $this->hasMany(UserContentCompletion::class);
+    }
+
+
+
+
 }
