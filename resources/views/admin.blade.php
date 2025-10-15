@@ -21,7 +21,6 @@
     .card-box h2 {
         font-size: 32px;
         font-weight: 600;
-        color: #007bff;
     }
 
     .card-box .text-center {
@@ -29,15 +28,18 @@
     }
 
     .card-box:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transform: translateY(-5px);
-    transition: all 0.3s ease;
-}
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+    }
 
+    /* Couleurs spécifiques pour les campagnes */
+    .text-success { color: #28a745 !important; }
+    .text-warning { color: #ffc107 !important; }
+    .text-info { color: #17a2b8 !important; }
+    .text-primary { color: #007bff !important; }
 
-
-
-    </style>
+</style>
 
 <div class="content-page">
     <div class="content">
@@ -58,8 +60,9 @@
                 </div>
             </div>
 
-            <!-- Statistiques des annonces et des dons -->
+            <!-- Statistiques des annonces, dons et campagnes -->
             <div class="row">
+                <!-- Statistiques des annonces et dons -->
                 <div class="col-xl-3">
                     <div class="card-box">
                         <h4 class="mt-0 font-16">Total des Annonces</h4>
@@ -88,6 +91,36 @@
                     </div>
                 </div>
 
+                <!-- NOUVELLES STATISTIQUES DES CAMPAGNES -->
+                <div class="col-xl-3">
+                    <div class="card-box">
+                        <h4 class="mt-0 font-16">Total des Campagnes</h4>
+                        <h2 class="text-primary my-4 text-center">{{ $totalCampagnes }}</h2>
+                    </div>
+                </div>
+
+                <div class="col-xl-3">
+                    <div class="card-box">
+                        <h4 class="mt-0 font-16">Campagnes en cours</h4>
+                        <h2 class="text-success my-4 text-center">{{ $campagnesEnCours }}</h2>
+                    </div>
+                </div>
+
+                <div class="col-xl-3">
+                    <div class="card-box">
+                        <h4 class="mt-0 font-16">Campagnes à venir</h4>
+                        <h2 class="text-warning my-4 text-center">{{ $campagnesAVenir }}</h2>
+                    </div>
+                </div>
+
+                <div class="col-xl-3">
+                    <div class="card-box">
+                        <h4 class="mt-0 font-16">Campagnes terminées</h4>
+                        <h2 class="text-info my-4 text-center">{{ $campagnesTerminees }}</h2>
+                    </div>
+                </div>
+
+                <!-- Autres statistiques existantes -->
                 <div class="col-xl-3">
                     <div class="card-box">
                         <h4 class="mt-0 font-16">Annonces Fermées</h4>
@@ -123,6 +156,21 @@
                 </div>
             </div>
 
+            <!-- NOUVEAU : Graphique des campagnes -->
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="card-box">
+                        <h4 class="header-title">Statut des Campagnes</h4>
+                        <div id="campagnesChart"
+                             total_campagnes="{{ $totalCampagnes }}"
+                             en_cours="{{ $campagnesEnCours }}"
+                             a_venir="{{ $campagnesAVenir }}"
+                             terminees="{{ $campagnesTerminees }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Radial Bar Charts -->
             <div class="row">
                 <div class="col-xl-6">
@@ -143,13 +191,8 @@
     </div>
 </div>
 
-
-
 <!-- Vendor js -->
 <script src="{{ asset('js/vendor.min.js') }}"></script>
-
-
-
 
 <!-- Third Party js-->
 <script src="{{asset('libs/peity/jquery.peity.min.js')}}"></script>
@@ -157,100 +200,133 @@
 <script src="{{asset('libs/jquery-vectormap/jquery-jvectormap-1.2.2.min.js')}}"></script>
 <script src="{{asset('libs/jquery-vectormap/jquery-jvectormap-us-merc-en.js')}}"></script>
 
-
 <!-- Initialisation des graphiques -->
 <script>
-    // Convertir les données PHP en JSON pour les utiliser en JS
-    var annoncesParMois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('annonces_data'));
-    var donsParMois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('dons_data'));
-    var mois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('mois'));
-    var $annoncesActives = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('active_data'));
-    var $annoncesInactives = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('inactive_data'));
-    var $annoncesFermees = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('ferme_data'));
+    document.addEventListener('DOMContentLoaded', function() {
+        // Convertir les données PHP en JSON pour les utiliser en JS
+        var annoncesParMois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('annonces_data'));
+        var donsParMois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('dons_data'));
+        var mois = JSON.parse(document.getElementById('annoncesDonsChart').getAttribute('mois'));
+        var $annoncesActives = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('active_data'));
+        var $annoncesInactives = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('inactive_data'));
+        var $annoncesFermees = JSON.parse(document.getElementById('annoncesActivesChart').getAttribute('ferme_data'));
 
-    // Graphique des annonces et dons par mois
-    var options1 = {
-        chart: {
-            type: 'bar',
-            height: 350
-        },
-        series: [{
-            name: 'Annonces',
-            data: annoncesParMois
-        }, {
-            name: 'Dons',
-            data: donsParMois
-        }],
-        xaxis: {
-            categories: mois
+        // Graphique des annonces et dons par mois
+        var options1 = {
+            chart: {
+                type: 'bar',
+                height: 350
+            },
+            series: [{
+                name: 'Annonces',
+                data: annoncesParMois
+            }, {
+                name: 'Dons',
+                data: donsParMois
+            }],
+            xaxis: {
+                categories: mois
+            }
+        };
+        var chart1 = new ApexCharts(document.querySelector("#annoncesDonsChart"), options1);
+        chart1.render();
+
+        // Graphique des annonces actives vs inactives
+        var options2 = {
+            chart: {
+                type: 'pie',
+                height: 350
+            },
+            series: [ $annoncesActives ,  $annoncesInactives, $annoncesFermees],
+            labels: ['Actifs', 'Inactifs', 'Fermées'],
+            colors: ['#28a745', '#ffc107', '#007bff']
+        };
+        var chart2 = new ApexCharts(document.querySelector("#annoncesActivesChart"), options2);
+        chart2.render();
+
+        // NOUVEAU : Graphique des campagnes
+        var campagnesElement = document.getElementById('campagnesChart');
+        if (campagnesElement) {
+            var campagnesEnCours = parseInt(campagnesElement.getAttribute('en_cours'));
+            var campagnesAVenir = parseInt(campagnesElement.getAttribute('a_venir'));
+            var campagnesTerminees = parseInt(campagnesElement.getAttribute('terminees'));
+
+            var options3 = {
+                chart: {
+                    type: 'donut',
+                    height: 350
+                },
+                series: [campagnesEnCours, campagnesAVenir, campagnesTerminees],
+                labels: ['En cours', 'À venir', 'Terminées'],
+                colors: ['#28a745', '#ffc107', '#17a2b8'],
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }]
+            };
+            var chart3 = new ApexCharts(document.querySelector("#campagnesChart"), options3);
+            chart3.render();
         }
-    };
-    var chart1 = new ApexCharts(document.querySelector("#annoncesDonsChart"), options1);
-    chart1.render();
 
-    // Graphique des annonces actives vs inactives
-    var options2 = {
-        chart: {
-            type: 'pie',
-            height: 350
-        },
-        series: [ $annoncesActives ,  $annoncesInactives, $annoncesFermees],
-        labels: ['Actifs', 'Inactifs', 'Fermées'],
-    };
-    var chart2 = new ApexCharts(document.querySelector("#annoncesActivesChart"), options2);
-    chart2.render();
+        // Récupération des données des utilisateurs connectés
+        var usersLastWeek = JSON.parse(document.getElementById('apex-radialbar-2').getAttribute('data_weekUsers'));
+        var usersLastMonth = JSON.parse(document.getElementById('apex-radialbar-3').getAttribute('data_monthUsers'));
 
-    // Récupération des données des utilisateurs connectés
-    var usersLastWeek = JSON.parse(document.getElementById('apex-radialbar-2').getAttribute('data_weekUsers'));
-    var usersLastMonth = JSON.parse(document.getElementById('apex-radialbar-3').getAttribute('data_monthUsers'));
-
-    // Graphique radial pour les utilisateurs connectés cette semaine
-    var radialOptions1 = {
-        chart: {
-            type: 'radialBar',
-            height: 350
-        },
-        series: [usersLastWeek],
-        labels: ['Connexions cette semaine'],
-        plotOptions: {
-            radialBar: {
-                dataLabels: {
-                    name: {
-                        fontSize: '22px',
-                    },
-                    value: {
-                        fontSize: '16px',
+        // Graphique radial pour les utilisateurs connectés cette semaine
+        var radialOptions1 = {
+            chart: {
+                type: 'radialBar',
+                height: 350
+            },
+            series: [usersLastWeek],
+            labels: ['Connexions cette semaine'],
+            plotOptions: {
+                radialBar: {
+                    dataLabels: {
+                        name: {
+                            fontSize: '22px',
+                        },
+                        value: {
+                            fontSize: '16px',
+                        }
                     }
                 }
             }
-        }
-    };
-    var radialChart1 = new ApexCharts(document.querySelector("#apex-radialbar-2"), radialOptions1);
-    radialChart1.render();
+        };
+        var radialChart1 = new ApexCharts(document.querySelector("#apex-radialbar-2"), radialOptions1);
+        radialChart1.render();
 
-    // Graphique radial pour les utilisateurs connectés ce mois
-    var radialOptions2 = {
-        chart: {
-            type: 'radialBar',
-            height: 350
-        },
-        series: [usersLastMonth],
-        labels: ['Connexions ce mois'],
-        plotOptions: {
-            radialBar: {
-                dataLabels: {
-                    name: {
-                        fontSize: '22px',
-                    },
-                    value: {
-                        fontSize: '16px',
+        // Graphique radial pour les utilisateurs connectés ce mois
+        var radialOptions2 = {
+            chart: {
+                type: 'radialBar',
+                height: 350
+            },
+            series: [usersLastMonth],
+            labels: ['Connexions ce mois'],
+            plotOptions: {
+                radialBar: {
+                    dataLabels: {
+                        name: {
+                            fontSize: '22px',
+                        },
+                        value: {
+                            fontSize: '16px',
+                        }
                     }
                 }
             }
-        }
-    };
-    var radialChart2 = new ApexCharts(document.querySelector("#apex-radialbar-3"), radialOptions2);
-    radialChart2.render();
+        };
+        var radialChart2 = new ApexCharts(document.querySelector("#apex-radialbar-3"), radialOptions2);
+        radialChart2.render();
+    });
 </script>
 
 @endsection

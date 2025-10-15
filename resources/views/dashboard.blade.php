@@ -71,6 +71,34 @@
                         <h2 class="text-primary my-4 text-center">{{ $donsMoisEnCours }}</h2>
                     </div>
                 </div>
+                 <!-- NOUVELLES STATISTIQUES DES CAMPAGNES -->
+    <div class="col-xl-3">
+        <div class="card-box">
+            <h4 class="mt-0 font-16">Total des Campagnes</h4>
+            <h2 class="text-primary my-4 text-center">{{ $totalCampagnes }}</h2>
+        </div>
+    </div>
+
+    <div class="col-xl-3">
+        <div class="card-box">
+            <h4 class="mt-0 font-16">Campagnes en cours</h4>
+            <h2 class="text-success my-4 text-center">{{ $campagnesEnCours }}</h2>
+        </div>
+    </div>
+
+    <div class="col-xl-3">
+        <div class="card-box">
+            <h4 class="mt-0 font-16">Campagnes à venir</h4>
+            <h2 class="text-warning my-4 text-center">{{ $campagnesAVenir }}</h2>
+        </div>
+    </div>
+
+    <div class="col-xl-3">
+        <div class="card-box">
+            <h4 class="mt-0 font-16">Campagnes terminées</h4>
+            <h2 class="text-info my-4 text-center">{{ $campagnesTerminees }}</h2>
+        </div>
+    </div>
             </div>
             <!-- Fin des statistiques -->
 
@@ -107,6 +135,20 @@
                         <div id="apex-radialbar-3" data_monthUsers='@json($usersLastMonth)'></div>
                     </div>
                 </div>
+
+                <div class="row">
+    <div class="col-xl-6">
+        <div class="card-box">
+            <h4 class="header-title">Statut des Campagnes</h4>
+            <div id="campagnesChart"
+                 total_campagnes="{{ $totalCampagnes }}"
+                 en_cours="{{ $campagnesEnCours }}"
+                 a_venir="{{ $campagnesAVenir }}"
+                 terminees="{{ $campagnesTerminees }}">
+            </div>
+        </div>
+    </div>
+</div>
             </div>
             <!-- Fin de la visualisation -->
         </div>

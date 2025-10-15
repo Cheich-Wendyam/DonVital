@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Annonce;
 use App\Models\Don;
 use App\Models\User;
+use App\Models\Campagne;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -20,6 +21,24 @@ class DashboardController extends Controller
 
         // Récupérer le nombre total de dons
         $totalDons = Don::count();
+
+        // NOUVELLES STATISTIQUES DES CAMPAGNES
+        // Récupérer le nombre total de campagnes
+        $totalCampagnes = Campagne::count();
+
+        // Campagnes en cours (actives et dans la période de dates)
+        $campagnesEnCours = Campagne::where('is_active', true)
+            ->where('date_debut', '<=', $now)
+            ->where('date_fin', '>=', $now)
+            ->count();
+
+        // Campagnes à venir (actives avec date de début dans le futur)
+        $campagnesAVenir = Campagne::where('is_active', true)
+            ->where('date_debut', '>', $now)
+            ->count();
+
+        // Campagnes terminées (date de fin passée)
+        $campagnesTerminees = Campagne::where('date_fin', '<', $now)->count();
 
         // Récupérer le nombre d'annonces actives
         $annoncesActives = Annonce::where('etat', 'actif')->count();
@@ -60,7 +79,10 @@ class DashboardController extends Controller
 
         return view('admin', compact(
             'totalAnnonces', 'totalDons', 'annoncesActives', 'annoncesInactives', 'annoncesFermees',
-            'donsMoisEnCours', 'annoncesParMois', 'donsParMois', 'mois', 'usersLastWeek', 'usersLastMonth'
+            'donsMoisEnCours', 'annoncesParMois', 'donsParMois', 'mois', 'usersLastWeek', 'usersLastMonth','totalCampagnes',
+            'campagnesEnCours',
+            'campagnesAVenir',
+            'campagnesTerminees'
         ));
     }
 }

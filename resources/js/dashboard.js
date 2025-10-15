@@ -57,6 +57,32 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         radialChart2.render();
 
+        let campagnesChart = new ApexCharts(document.querySelector("#campagnesChart"), {
+        chart: {
+            type: 'donut',
+            height: 350
+        },
+        series: [
+            parseInt(document.getElementById('campagnesChart').getAttribute('en_cours')),
+            parseInt(document.getElementById('campagnesChart').getAttribute('a_venir')),
+            parseInt(document.getElementById('campagnesChart').getAttribute('terminees'))
+        ],
+        labels: ['En cours', 'À venir', 'Terminées'],
+        colors: ['#28a745', '#ffc107', '#17a2b8'],
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    });
+    campagnesChart.render();
+
     } catch (error) {
         console.error("Erreur lors de l'initialisation des graphiques :", error);
     }

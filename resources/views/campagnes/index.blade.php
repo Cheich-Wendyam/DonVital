@@ -54,12 +54,12 @@
                             <table id="basic-datatable" class="table dt-responsive nowrap">
                                 <thead>
                                     <tr>
-                                        <th>Image</th>
                                         <th>Titre</th>
                                         <th>Description</th>
                                         <th>Lieu</th>
                                         <th>Centre</th>
                                         <th>Dates</th>
+                                        <th>Image</th>
                                         <th>Groupes ciblés</th>
                                         <th>Actions</th>
                                     </tr>
@@ -67,15 +67,7 @@
                                 <tbody>
                                     @foreach($campagnes as $campagne)
                                         <tr>
-                                            <td>
-                                                @if($campagne->image_url)
-                                                    <img src="{{ Storage::url($campagne->image_url) }}" alt="Image" style="max-height: 50px;" class="img-thumbnail">
-                                                @else
-                                                    <div class="text-center">
-                                                        <i class="mdi mdi-image-remove" style="font-size: 24px;"></i>
-                                                    </div>
-                                                @endif
-                                            </td>
+
                                             <td>{{ $campagne->titre }}</td>
                                             <td>{{ \Illuminate\Support\Str::limit($campagne->description, 50) }}</td>
                                             <td>{{ $campagne->lieu }}</td>
@@ -86,15 +78,28 @@
                                                 <strong>{{ \Carbon\Carbon::parse($campagne->date_fin)->format('d/m/Y H:i') }}</strong>
                                             </td>
                                             <td>
+                                                @if($campagne->image_url)
+                                                    <img src="{{($campagne->image_url) }}" alt="Image" style="max-height: 50px;" class="img-thumbnail">
+                                                @else
+                                                    <div class="text-center">
+                                                        <i class="mdi mdi-image-remove" style="font-size: 24px;"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td>
                                                 @php
                                                     $groupes = is_array($campagne->groupes_cibles)
                                                         ? $campagne->groupes_cibles
                                                         : json_decode($campagne->groupes_cibles, true);
                                                 @endphp
                                                 @if(!empty($groupes))
-                                                    @foreach($groupes as $groupe)
-                                                        <span class="badge badge-info">{{ $groupe }}</span>
-                                                    @endforeach
+                                                    @if(count($groupes) == 8)
+                                                        <span class="badge badge-success">Tous les groupes</span>
+                                                    @else
+                                                        @foreach($groupes as $groupe)
+                                                            <span class="badge badge-info">{{ $groupe }}</span>
+                                                        @endforeach
+                                                    @endif
                                                 @else
                                                     <span class="badge badge-light">Aucun</span>
                                                 @endif
@@ -117,7 +122,6 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
-
                             </table>
                         </div>
                     </div>
@@ -151,12 +155,12 @@
                     </p>
                     @if($campagne->image_url)
                         <div class="text-center mt-3">
-                            <img src="{{ Storage::url($campagne->image_url) }}" alt="Image" class="img-thumbnail" style="max-height: 150px;">
+                            <img src="{{($campagne->image_url) }}" alt="Image" class="img-thumbnail" style="max-height: 150px;">
                         </div>
                     @endif
                     <div class="alert {{ $campagne->is_active ? 'alert-warning' : 'alert-info' }} mt-3">
                         <i class="mdi mdi-alert-circle-outline mr-2"></i>
-                        Cette action changera l’état de la campagne immédiatement.
+                        Cette action changera l'état de la campagne immédiatement.
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -169,7 +173,6 @@
         </form>
     </div>
 </div>
-
 
 <!-- Modal Modifier -->
 <div class="modal fade" id="editCampagneModal-{{ $campagne->id }}" tabindex="-1" role="dialog">
@@ -223,13 +226,39 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Nouveau champ pour les groupes sanguins avec cases à cocher -->
                     <div class="form-group">
                         <label>Groupes sanguins ciblés <span class="text-danger">*</span></label>
-                        <input type="text" name="groupes_cibles" class="form-control"
-                               value="{{ implode(', ', is_array($campagne->groupes_cibles) ? $campagne->groupes_cibles : json_decode($campagne->groupes_cibles, true)) }}"
-                               placeholder="Saisir les groupes séparés par des virgules (ex: A+, B+, O-)" required>
-                        <small class="form-text text-muted">Séparez les groupes sanguins par des virgules</small>
+                        <div class="d-flex flex-wrap">
+                            @php
+                                // Définir les groupes sélectionnés pour cette campagne
+                                $groupesCampagne = is_array($campagne->groupes_cibles)
+                                    ? $campagne->groupes_cibles
+                                    : (json_decode($campagne->groupes_cibles, true) ?? []);
+                                $allSelected = count($groupesCampagne) === count($groupesSanguins);
+                            @endphp
+
+                            <div class="custom-control custom-checkbox mr-3 mb-2">
+                                <input type="checkbox" class="custom-control-input" name="groupes_cibles[]"
+                                       id="groupe_tous_{{ $campagne->id }}" value="tous"
+                                       {{ $allSelected ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="groupe_tous_{{ $campagne->id }}">Tous les groupes</label>
+                            </div>
+
+                            @foreach($groupesSanguins as $groupe)
+                            <div class="custom-control custom-checkbox mr-3 mb-2">
+                                <input type="checkbox" class="custom-control-input groupe-sanguin"
+                                       name="groupes_cibles[]" id="groupe_{{ $groupe }}_{{ $campagne->id }}"
+                                       value="{{ $groupe }}"
+                                       {{ in_array($groupe, $groupesCampagne) ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="groupe_{{ $groupe }}_{{ $campagne->id }}">{{ $groupe }}</label>
+                            </div>
+                            @endforeach
+                        </div>
+                        <small class="form-text text-muted">Sélectionnez les groupes sanguins ciblés</small>
                     </div>
+
                     <div class="form-group">
                         <label>Image</label>
                         <div class="custom-file">
@@ -238,7 +267,7 @@
                         </div>
                         @if($campagne->image_url)
                             <div class="mt-3">
-                                <img src="{{ Storage::url($campagne->image_url) }}" alt="Image" class="img-thumbnail" style="max-height: 150px;">
+                                <img src="{{($campagne->image_url) }}" alt="Image" class="img-thumbnail" style="max-height: 150px;">
                             </div>
                         @endif
                     </div>
@@ -273,7 +302,7 @@
                     <p>Êtes-vous sûr de vouloir supprimer la campagne <strong>{{ $campagne->titre }}</strong> ?</p>
                     @if($campagne->image_url)
                         <div class="text-center mt-3">
-                            <img src="{{ Storage::url($campagne->image_url) }}" alt="Image" class="img-thumbnail" style="max-height: 150px;">
+                            <img src="{{($campagne->image_url) }}" alt="Image" class="img-thumbnail" style="max-height: 150px;">
                         </div>
                     @endif
                     <div class="alert alert-warning mt-3">
@@ -342,12 +371,28 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Nouveau champ pour les groupes sanguins avec cases à cocher -->
                     <div class="form-group">
                         <label>Groupes sanguins ciblés <span class="text-danger">*</span></label>
-                        <input type="text" name="groupes_cibles" class="form-control"
-                               placeholder="Saisir les groupes séparés par des virgules (ex: A+, B+, O-)" required>
-                        <small class="form-text text-muted">Séparez les groupes sanguins par des virgules</small>
+                        <div class="d-flex flex-wrap">
+                            <div class="custom-control custom-checkbox mr-3 mb-2">
+                                <input type="checkbox" class="custom-control-input" name="groupes_cibles[]"
+                                       id="groupe_tous" value="tous" checked>
+                                <label class="custom-control-label" for="groupe_tous">Tous les groupes</label>
+                            </div>
+                            @foreach($groupesSanguins as $groupe)
+                            <div class="custom-control custom-checkbox mr-3 mb-2">
+                                <input type="checkbox" class="custom-control-input groupe-sanguin"
+                                       name="groupes_cibles[]" id="groupe_{{ $groupe }}"
+                                       value="{{ $groupe }}" checked>
+                                <label class="custom-control-label" for="groupe_{{ $groupe }}">{{ $groupe }}</label>
+                            </div>
+                            @endforeach
+                        </div>
+                        <small class="form-text text-muted">Sélectionnez les groupes sanguins ciblés</small>
                     </div>
+
                     <div class="form-group">
                         <label>Image</label>
                         <div class="custom-file">
@@ -377,7 +422,7 @@
 <script src="{{ asset('libs/datatables/dataTables.bootstrap4.js') }}"></script>
 <script src="{{ asset('libs/datatables/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('libs/datatables/responsive.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('libs/datatables/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('libs/datatables/dataTables.buttons.min.js') }}></script>
 <script src="{{ asset('libs/datatables/buttons.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('libs/datatables/buttons.html5.min.js') }}"></script>
 <script src="{{ asset('libs/datatables/buttons.flash.min.js') }}"></script>
@@ -405,6 +450,63 @@
                 var nextSibling = e.target.nextElementSibling;
                 nextSibling.innerText = fileName;
             });
+        });
+
+        // Gestion de la case "Tous les groupes"
+        function setupGroupeSanguinCheckboxes(modalId) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+
+            const checkBoxTous = modal.querySelector('input[value="tous"]');
+            const checkBoxGroupes = modal.querySelectorAll('.groupe-sanguin');
+
+            if (checkBoxTous) {
+                checkBoxTous.addEventListener('change', function() {
+                    checkBoxGroupes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                        checkbox.disabled = this.checked;
+                    });
+                });
+
+                // Désactiver les cases individuelles si "Tous" est coché
+                if (checkBoxTous.checked) {
+                    checkBoxGroupes.forEach(checkbox => {
+                        checkbox.disabled = true;
+                    });
+                }
+
+                // Gérer la case "Tous" quand on modifie les cases individuelles
+                checkBoxGroupes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const allChecked = Array.from(checkBoxGroupes).every(cb => cb.checked);
+                        const noneChecked = Array.from(checkBoxGroupes).every(cb => !cb.checked);
+
+                        if (allChecked) {
+                            checkBoxTous.checked = true;
+                            checkBoxGroupes.forEach(cb => cb.disabled = true);
+                        } else if (noneChecked) {
+                            checkBoxTous.checked = false;
+                            checkBoxGroupes.forEach(cb => cb.disabled = false);
+                        } else {
+                            checkBoxTous.checked = false;
+                            checkBoxGroupes.forEach(cb => cb.disabled = false);
+                        }
+                    });
+                });
+            }
+        }
+
+        // Appliquer à tous les modaux
+        setupGroupeSanguinCheckboxes('addCampagneModal');
+
+        @foreach($campagnes as $campagne)
+            setupGroupeSanguinCheckboxes('editCampagneModal-{{ $campagne->id }}');
+        @endforeach
+
+        // Re-initialiser quand les modaux sont ouverts
+        $('.modal').on('shown.bs.modal', function() {
+            const modalId = $(this).attr('id');
+            setTimeout(() => setupGroupeSanguinCheckboxes(modalId), 100);
         });
     });
 </script>
